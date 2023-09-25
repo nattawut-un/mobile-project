@@ -1,21 +1,51 @@
-import { Text, ScrollView, StyleSheet } from 'react-native'
-import { useState } from 'react'
-import { Timeline, CalendarList, LocaleConfig } from 'react-native-calendars'
+import { View, StyleSheet } from 'react-native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import {
+  Text,
+  ActivityIndicator
+} from 'react-native-paper'
+import { Ionicons } from '@expo/vector-icons'
+
+import SubjectHome from './subject/SubjectHome'
+
+const Stack = createNativeStackNavigator()
 
 export default function Subject() {
-  const [selected, setSelected] = useState('')
+  return (
+    <Stack.Navigator initialRouteName='SubjectHome'>
+      <Stack.Screen name='SubjectHome' component={SubjectHome} options={{
+        title: 'Subjects',
+        headerLeft: () => <Ionicons name="bookmarks" size={24} color="black" style={{ marginRight: 12 }} />,
+        headerShown: false
+      }} />
+      <Stack.Screen name='SubjectInfo' component={Placeholder} options={{
+        title: 'Subjects Info'
+      }} />
+    </Stack.Navigator>
+  )
+}
+
+function Placeholder({ route }) {
+  const { subject } = route.params
 
   return (
-    <ScrollView style={styles.container}>
-      <Text>WIP</Text>
-    </ScrollView>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ActivityIndicator animating={true} size="large" />
+      <View style={{ marginVertical: 4 }} />
+      <Text variant="bodyMedium">{subject.title}</Text>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#fff',
+  },
+  fabStyle: {
+    bottom: 16,
+    right: 16,
+    position: 'absolute',
   },
 })
 

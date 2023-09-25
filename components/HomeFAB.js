@@ -10,22 +10,21 @@ export default function HomeFAB() {
     <FAB.Group
       open={open}
       visible
-      icon={open ? 'calendar-today' : 'plus'}
+      icon={open ? 'arrow-down' : 'plus'}
       actions={[
-        { icon: 'plus', onPress: () => console.log('Pressed add') },
         {
-          icon: 'star',
-          label: 'Star',
+          icon: 'bookmark',
+          label: 'Subject',
           onPress: () => console.log('Pressed star'),
         },
         {
-          icon: 'email',
-          label: 'Email',
+          icon: 'table',
+          label: 'Timetable',
           onPress: () => console.log('Pressed email'),
         },
         {
-          icon: 'bell',
-          label: 'Remind',
+          icon: 'book',
+          label: 'Homework',
           onPress: () => console.log('Pressed notifications'),
         },
       ]}

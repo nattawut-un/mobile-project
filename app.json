@@ -21,10 +21,20 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.nttw.mobileproject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f6ad7feb-edd1-408e-ac93-d28e79361d92"
+      }
+    },
+    "owner": "nttw",
+    "experiments": {
+      "tsconfigPaths": true
     }
   }
 }

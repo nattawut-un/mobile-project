@@ -1,9 +1,6 @@
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
-import { Calendar as CalendarItem, Agenda, LocaleConfig } from "react-native-calendars";
-import { useContext } from 'react'
-import { markedDates } from '../store/MarkedDates'
-import { Card, Avatar } from 'react-native-paper'
+import { Card } from 'react-native-paper';
 import dayjs from "dayjs";
 
 const timeToString = time => {
@@ -95,12 +92,12 @@ export default function Calendar() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Agenda
+      {/* <Agenda
         items={items}
         loadItemsForMonth={loadItems}
         selected={dayjs().format('YYYY-MM-DD')}
         renderItem={renderItem}
-      />
+      /> */}
     </View>
   )
 }

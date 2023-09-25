@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, ScrollView, View } from 'react-native'
+import { StyleSheet, ScrollView, View } from 'react-native';
+import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useFonts } from 'expo-font'
-import { FAB, Portal, PaperProvider } from 'react-native-paper'
 import dayjs from 'dayjs';
-import UTC from 'dayjs/plugin/utc'
+import UTC from 'dayjs/plugin/utc';
 
-import HomeFAB from '../components/HomeFAB';
+import HomeFAB from 'components/HomeFAB';
+import ListCard from 'components/ListCard';
+import TestImage from 'assets/icon.png'
+import Settings from './Settings';
 
 const Stack = createNativeStackNavigator()
 
-export default function App() {
+function Homepage({ navigation }) {
   dayjs.extend(UTC)
 
   const [date, setDate] = useState(dayjs())
@@ -18,31 +20,79 @@ export default function App() {
     setDate(dayjs())
   }
 
-  useEffect(() => {
-    setInterval(clockInterval, 1000)
-    return () => clearInterval(clockInterval)
-  }, [])
+  const toSettings = () => navigation.navigate("Settings")
 
-  const [state, setState] = useState({ open: false })
-  const onStateChange = ({ open }) => setState({ open })
-  const { open } = state
+  useEffect(() => {
+    const interval = setInterval(clockInterval, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <PaperProvider>
       <Portal>
+        <Appbar.Header
+          mode="small"
+          style={{
+            backgroundColor: MD3Colors.primary50,
+          }}
+        >
+          <Appbar.Action icon="home" color={MD3Colors.primary90} />
+          <Appbar.Content title="Home" color="white" />
+          <Appbar.Action
+            icon="login-variant"
+            color={MD3Colors.primary90}
+            onPress={() => console.log('Login')}
+          />
+          <Appbar.Action
+            icon="cog"
+            color={MD3Colors.primary90}
+            onPress={() => toSettings()}
+          />
+          <Appbar.Action
+            icon="dots-vertical"
+            color={MD3Colors.primary90}
+            onPress={() => console.log('More')}
+          />
+        </Appbar.Header>
         <ScrollView style={styles.container}>
           <View style={styles.timeElement}>
-            <Text style={{ ...styles.time, fontSize: 60 }}>
-              {date.format('hh:mm:ss')}
+            <Text variant="displayLarge" style={styles.time}>
+              {date.format('H:mm:ss')}
             </Text>
-            <Text style={{ ...styles.time, fontSize: 24 }}>
+            <Text variant="titleLarge" style={styles.time}>
               {date.format('dddd, MMMM D, YYYY')}
             </Text>
+            {/* <Text style={styles.text}>เทส</Text> */}
           </View>
+          <View style={{ marginVertical: 8 }}>
+            {[...Array(10).keys()].map((n, i) => (
+              <ListCard
+                key={i}
+                title={'Title ' + n}
+                description={
+                  'Nisi ea est veniam adipisicing aliqua est aliqua dolore laboris. ' +
+                  n
+                }
+                image={TestImage}
+              />
+            ))}
+          </View>
+          {/* <View></View> */}
         </ScrollView>
         <HomeFAB />
       </Portal>
     </PaperProvider>
+  )
+}
+
+export default function Home() {
+  return (
+    <Stack.Navigator initialRouteName='Home' screenOptions={{
+      headerShown: false,
+    }}>
+      <Stack.Screen name='Home' component={Homepage} />
+      <Stack.Screen name='Settings' component={Settings} />
+    </Stack.Navigator>
   )
 }
 
@@ -53,9 +103,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   timeElement: {
-    paddingVertical: 16
+    paddingTop: 32,
+    paddingBottom: 32,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   time: {
-    fontWeight: 'bold',
+    fontWeight: '500',
+  },
+  text: {
+    fontFamily: 'font-thai',
+    fontSize: 99
   },
 })

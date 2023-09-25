@@ -1,20 +1,27 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { NavigationContainer } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
-import { useFonts } from 'expo-font'
-import { View, Text, StyleSheet } from 'react-native'
+import { View } from 'react-native'
+import { ActivityIndicator, MD3Colors, PaperProvider } from 'react-native-paper'
+import { useState, useEffect } from 'react'
+import * as Font from 'expo-font'
 
 import Main from './screens/Main'
-import { ActivityIndicator } from 'react-native-paper'
-
-const vacation = { key: 'vacation', color: 'red', selectedDotColor: 'blue' }
-const massage = { key: 'massage', color: 'blue', selectedDotColor: 'blue' }
-const workout = { key: 'workout', color: 'green' }
 
 export default function App() {
-  const [loaded] = useFonts({
-    NotoSansThai: require('./assets/fonts/NotoSansThai.ttf')
-  })
+  const [loaded, setLoaded] = useState(false)
+
+  async function loadFont() {
+    await Font.loadAsync({
+      'font-thai': require('./assets/fonts/NotoSansThai.ttf'),
+    })
+    console.log('font loaded')
+    setLoaded(true)
+  }
+
+  useEffect(() => {
+    loadFont()
+  }, [])
 
   if (!loaded) {
     return (
@@ -25,10 +32,12 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', fontFamily: 'NotoSansThai' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <NavigationContainer>
-        <Main />
-        <StatusBar style="dark" />
+        <PaperProvider>
+          <Main />
+          <StatusBar style='light' backgroundColor={MD3Colors.primary40} />
+        </PaperProvider>
       </NavigationContainer>
     </SafeAreaView>
   )
