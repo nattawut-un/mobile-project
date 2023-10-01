@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import * as Font from 'expo-font'
 
 import Main from './screens/Main'
+//basnaheeeeee
 
 export default function App() {
   const [loaded, setLoaded] = useState(false)
