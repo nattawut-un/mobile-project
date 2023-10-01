@@ -8,6 +8,9 @@ import * as Font from 'expo-font'
 
 import Main from './screens/Main'
 
+// Hello world
+// Laboris laboris excepteur nisi Lorem amet minim incididunt enim amet consequat reprehenderit laboris voluptate.
+
 export default function App() {
   const [loaded, setLoaded] = useState(false)
 
