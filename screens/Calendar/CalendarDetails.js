@@ -16,7 +16,7 @@ const CalendarDetails = () => {
                     </Text>
                 </View>
                 <View>
-                    {[...Array(10000000).keys()].map((n, i) => (
+                    {[...Array(10).keys()].map((n, i) => (
                         <ListCard
                             key={i}
                             title={'Homework Title ' + n + "\n" + "Mobile Device Programming"}
