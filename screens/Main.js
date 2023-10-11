@@ -30,7 +30,7 @@ const bottomBarItems = [
     icons: ['home-outline', 'home'],
   },
   {
-    name: 'Subjects',
+    name: 'Subject',
     component: Subject,
     icons: ['bookmarks-outline', 'bookmarks'],
   },

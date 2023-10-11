@@ -87,10 +87,10 @@ function Homepage({ navigation }) {
 
 export default function Home() {
   return (
-    <Stack.Navigator initialRouteName='Home' screenOptions={{
+    <Stack.Navigator initialRouteName='Homepage' screenOptions={{
       headerShown: false,
     }}>
-      <Stack.Screen name='Home' component={Homepage} />
+      <Stack.Screen name='Homepage' component={Homepage} />
       <Stack.Screen name='Settings' component={Settings} />
     </Stack.Navigator>
   )
