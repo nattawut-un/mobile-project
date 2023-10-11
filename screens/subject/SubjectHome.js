@@ -132,7 +132,6 @@ export default function SubjectHome({ navigation }) {
             borderWidth: 2,
           }}
         >
-          {/* <Card.Title title={'id: ' + item.id} subtitle={item.createDate} /> */}
           <Card.Content>
             <Image source={TestImage} style={styles.cardImage} />
             <Text variant="titleLarge">{item.title}</Text>
@@ -142,6 +141,10 @@ export default function SubjectHome({ navigation }) {
             <Button onPress={() => deleteSubject(item.id)}>Delete</Button>
             <Button
               onPress={() =>
+                // navigation.navigate('SubjectInfo', {
+                //   screen: 'SubjectInfoTab',
+                //   params: { subject: item },
+                // })
                 navigation.navigate('SubjectInfo', { subject: item })
               }
             >
@@ -192,32 +195,6 @@ export default function SubjectHome({ navigation }) {
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <Appbar.Header
-          mode="small"
-          style={{
-            // position: 'absolute',
-            // zIndex: 100,
-            // width: '100%',
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.Action
-            icon="bookmark-multiple"
-            color={MD3Colors.primary90}
-            onPress={_handleSearch}
-          />
-          <Appbar.Content title="Subjects" color="white" />
-          {/* <Appbar.Action
-            icon="magnify"
-            color={MD3Colors.primary90}
-            onPress={_handleSearch}
-          /> */}
-          <Appbar.Action
-            icon="dots-vertical"
-            color={MD3Colors.primary90}
-            onPress={_handleMore}
-          />
-        </Appbar.Header>
         <View
           style={{
             paddingVertical: 8,
