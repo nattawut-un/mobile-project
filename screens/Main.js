@@ -2,9 +2,12 @@ import { StyleSheet, Text, View } from 'react-native'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { Icon } from 'react-native-vector-icons/Ionicons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MD3Colors, Provider, PaperProvider } from 'react-native-paper'
+import { onAuthStateChanged } from 'firebase/auth'
+import { FIREBASE_AUTH } from 'config/firebase'
 
+import Login from './Login'
 import Home from './Home'
 import Settings from './Settings'
 import Calendar from './Calendar'
@@ -12,6 +15,8 @@ import Subject from './Subject'
 import Agenda from './Agenda'
 
 const Tab = createMaterialBottomTabNavigator()
+
+// TODO https://www.youtube.com/watch?v=ONAVmsGW6-M 19:03
 
 const bottomBarItems = [
   {
@@ -79,7 +84,16 @@ function createBottomBarTabs() {
 }
 
 export default function Main() {
-  return (
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, user => {
+      console.log('user:', user)
+      setUser(user)
+    })
+  }, [])
+
+  if (user) return (
     <Tab.Navigator
       initialRouteName="Home"
       activeColor={MD3Colors.primary90}
@@ -92,6 +106,8 @@ export default function Main() {
       {createBottomBarTabs()}
     </Tab.Navigator>
   )
+
+  return <Login />
 }
 
 function IDK() {

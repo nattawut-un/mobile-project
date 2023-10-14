@@ -4,6 +4,7 @@ import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-pap
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
+import { FIREBASE_AUTH } from 'config/firebase';
 
 import HomeFAB from 'components/HomeFAB';
 import ListCard from 'components/ListCard';
@@ -21,6 +22,7 @@ function Homepage({ navigation }) {
   }
 
   const toSettings = () => navigation.navigate("Settings")
+  const logOut = () => FIREBASE_AUTH.signOut()
 
   useEffect(() => {
     const interval = setInterval(clockInterval, 1000)
@@ -41,12 +43,12 @@ function Homepage({ navigation }) {
           <Appbar.Action
             icon="login-variant"
             color={MD3Colors.primary90}
-            onPress={() => console.log('Login')}
+            onPress={logOut}
           />
           <Appbar.Action
             icon="cog"
             color={MD3Colors.primary90}
-            onPress={() => toSettings()}
+            onPress={toSettings}
           />
           <Appbar.Action
             icon="dots-vertical"
