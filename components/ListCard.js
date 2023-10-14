@@ -1,31 +1,41 @@
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native'
 import { MD3Colors, Text } from 'react-native-paper'
 import { MaterialIcons } from '@expo/vector-icons'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 /**
  * @param {object} props
  * @param {string} props.title Card title
  * @param {string} props.description Card description
  * @param {string} props.image Path of an image
+ * @param {Date} props.date Due date
  * @param {JSX.Element} props.icon Icon element
  * @param {JSX.Element} props.children Children element
  * @param {() => void} props.onSelect Function to call when the card is selected
  */
 export default function ListCard(props) {
-  const { title, description, image, icon, children } = props
+  const { title, description, image, date, icon, children } = props
+  const dueDate = dayjs.unix(date.seconds)
+
   return (
     <TouchableOpacity style={styles.container}>
       <View style={styles.image}>
         {image ? (
           <Image source={image} style={styles.image} />
+        ) : icon ? (
+          icon
         ) : (
-          icon ? icon : <View />
+          <View />
         )}
       </View>
       <View style={{ width: '85%' }}>
         <Text variant="labelLarge">{title}</Text>
+        {date ? <Text variant="labelMedium">{dueDate.fromNow()} ({dueDate.format('DD MMM YYYY, HH:ss')})</Text> : null}
         {description ? (
-            <Text
+          <Text
             variant="bodyMedium"
             style={{
               flexWrap: 'nowrap',
