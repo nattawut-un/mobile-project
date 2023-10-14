@@ -4,7 +4,9 @@ import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-pap
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
+
 import { FIREBASE_AUTH } from 'config/firebase';
+import { appointmentsCollection } from 'services/calendar';
 
 import HomeFAB from 'components/HomeFAB';
 import ListCard from 'components/ListCard';
@@ -16,18 +18,21 @@ const Stack = createNativeStackNavigator()
 function Homepage({ navigation }) {
   dayjs.extend(UTC)
 
-  const [date, setDate] = useState(dayjs())
-  const clockInterval = () => {
-    setDate(dayjs())
-  }
-
   const toSettings = () => navigation.navigate("Settings")
   const logOut = () => FIREBASE_AUTH.signOut()
 
-  useEffect(() => {
-    const interval = setInterval(clockInterval, 1000)
-    return () => clearInterval(interval)
-  }, [])
+  const [appointments, setAppointments] = useState([])
+  const getAppointment = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const { title, description, dueDate } = res.data()
+      data.push({ key: res.id, title, description, dueDate })
+    })
+    setAppointments(data)
+    console.log('appointments:', data)
+  }
+
+  useEffect(() => appointmentsCollection.onSnapshot(getAppointment), [])
 
   return (
     <PaperProvider>
@@ -57,29 +62,18 @@ function Homepage({ navigation }) {
           />
         </Appbar.Header>
         <ScrollView style={styles.container}>
-          <View style={styles.timeElement}>
-            <Text variant="displayLarge" style={styles.time}>
-              {date.format('H:mm:ss')}
-            </Text>
-            <Text variant="titleLarge" style={styles.time}>
-              {date.format('dddd, MMMM D, YYYY')}
-            </Text>
-            {/* <Text style={styles.text}>เทส</Text> */}
-          </View>
+          <Clock />
           <View style={{ marginVertical: 8 }}>
-            {[...Array(10).keys()].map((n, i) => (
+            {appointments.map((item, index) => (
               <ListCard
-                key={i}
-                title={'Title ' + n}
-                description={
-                  'Nisi ea est veniam adipisicing aliqua est aliqua dolore laboris. ' +
-                  n
-                }
+                key={index}
+                title={item.title}
+                description={item.description}
+                date={item.dueDate}
                 image={TestImage}
               />
             ))}
           </View>
-          {/* <View></View> */}
         </ScrollView>
         <HomeFAB />
       </Portal>
@@ -95,6 +89,29 @@ export default function Home() {
       <Stack.Screen name='Homepage' component={Homepage} />
       <Stack.Screen name='Settings' component={Settings} />
     </Stack.Navigator>
+  )
+}
+
+function Clock({}) {
+  const [date, setDate] = useState(dayjs())
+  const clockInterval = () => {
+    setDate(dayjs())
+  }
+
+  useEffect(() => {
+    const interval = setInterval(clockInterval, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <View style={styles.timeElement}>
+      <Text variant="displayLarge" style={styles.time}>
+        {date.format('H:mm:ss')}
+      </Text>
+      <Text variant="titleLarge" style={styles.time}>
+        {date.format('dddd, MMMM D, YYYY')}
+      </Text>
+    </View>
   )
 }
 
