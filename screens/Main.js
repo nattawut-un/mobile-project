@@ -10,13 +10,15 @@ import Settings from './Settings'
 import Calendar from './Calendar'
 import Subject from './Subject'
 import Agenda from './Agenda'
+import QrCode from './Reward/Qrcode'
+import CalendarDetails from './Calendar/CalendarDetails'
 
 const Tab = createMaterialBottomTabNavigator()
 
 const bottomBarItems = [
   {
     name: 'Calendar',
-    component: IDK,
+    component: CalendarDetails,
     icons: ['calendar-outline', 'calendar-sharp'],
   },
   {
@@ -36,7 +38,7 @@ const bottomBarItems = [
   },
   {
     name: 'Rewards',
-    component: IDK,
+    component: QrCode,
     icons: ['pricetags-outline', 'pricetags'],
   },
 ]
