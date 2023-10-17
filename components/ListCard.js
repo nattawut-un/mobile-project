@@ -11,17 +11,17 @@ dayjs.extend(relativeTime)
  * @param {string} props.title Card title
  * @param {string} props.description Card description
  * @param {string} props.image Path of an image
- * @param {Date} props.date Due date
+ * @param {string} props.date Due date
  * @param {JSX.Element} props.icon Icon element
  * @param {JSX.Element} props.children Children element
- * @param {() => void} props.onSelect Function to call when the card is selected
+ * @param {() => void} props.onPress Function to call when the card is selected
  */
 export default function ListCard(props) {
-  const { title, description, image, date, icon, children } = props
-  const dueDate = dayjs.unix(date.seconds)
+  const { title, description, image, date, icon, children, onPress } = props
+  const dueDate = dayjs.unix(date) ?? null
 
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.image}>
         {image ? (
           <Image source={image} style={styles.image} />
@@ -33,7 +33,11 @@ export default function ListCard(props) {
       </View>
       <View style={{ width: '85%' }}>
         <Text variant="labelLarge">{title}</Text>
-        {date ? <Text variant="labelMedium">{dueDate.fromNow()} ({dueDate.format('DD MMM YYYY, HH:ss')})</Text> : null}
+        {date ? (
+          <Text variant="labelMedium">
+            {dueDate.fromNow()} ({dueDate.format('DD MMM YYYY, HH:ss')})
+          </Text>
+        ) : null}
         {description ? (
           <Text
             variant="bodyMedium"
