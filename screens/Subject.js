@@ -15,10 +15,7 @@ const Stack = createNativeStackNavigator()
 
 export default function Subject() {
   return (
-    <Stack.Navigator
-      initialRouteName="SubjectHome"
-      screenOptions={{ headerShown: true }}
-    >
+    <Stack.Navigator initialRouteName="SubjectHome">
       <Stack.Screen
         name="SubjectHome"
         component={SubjectHome}
@@ -65,7 +62,7 @@ function SubjectInfoHeader({ navigation, route }) {
 
   return (
     <Appbar.Header
-      mode="large"
+      mode="medium"
       style={{
         backgroundColor: MD3Colors.primary50,
       }}
@@ -78,7 +75,12 @@ function SubjectInfoHeader({ navigation, route }) {
       <Appbar.Action
         icon="pencil"
         color={MD3Colors.primary90}
-        onPress={() => console.log('More')}
+        onPress={() => console.log('Edit')}
+      />
+      <Appbar.Action
+        icon="delete"
+        color={MD3Colors.primary90}
+        onPress={() => console.log('Delete')}
       />
       <Appbar.Action
         icon="dots-vertical"
