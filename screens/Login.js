@@ -1,26 +1,32 @@
 import { useState } from "react";
-import { StyleSheet, Image, View, Button } from "react-native";
+import { StyleSheet, Image, View, Button, Alert } from "react-native";
 import { Text, TextInput } from 'react-native-paper'
 import { ActivityIndicator, MD3Colors } from "react-native-paper";
 import { FIREBASE_AUTH } from "config/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { useSelector, useDispatch } from 'react-redux'
+
+import { saveUser } from 'config/redux'
 
 import Icon from '../assets/icon.png'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('baszaa1234@gmail.com')
+  const [password, setPassword] = useState('123456')
   const [loading, setLoading] = useState(false)
 
   const auth = FIREBASE_AUTH
+
+  const dispatch = useDispatch()
 
   const signIn = async () => {
     setLoading(true)
     try {
       const res = await signInWithEmailAndPassword(auth, email, password)
-      console.log(res)
+      console.log('Login successful:', res)
     } catch (err) {
       console.log(err)
+      Alert.alert('Error', 'Please check your email and password, and try again.')
     } finally {
       setLoading(false)
     }
@@ -33,6 +39,7 @@ export default function Login() {
       console.log(res)
     } catch (err) {
       console.log(err)
+      Alert.alert('Error', 'Please check your email and password, and try again.')
     } finally {
       setLoading(false)
     }

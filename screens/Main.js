@@ -1,11 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { Icon } from 'react-native-vector-icons/Ionicons'
 import { useState, useEffect } from 'react'
-import { MD3Colors, Provider, PaperProvider } from 'react-native-paper'
+import { MD3Colors, Provider, PaperProvider, ActivityIndicator, Text } from 'react-native-paper'
 import { onAuthStateChanged } from 'firebase/auth'
 import { FIREBASE_AUTH } from 'config/firebase'
+import { useSelector, useDispatch } from 'react-redux'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
+
+import { saveUser } from 'config/redux'
 
 import Login from './Login'
 import Home from './Home'
@@ -15,8 +20,6 @@ import Subject from './Subject'
 import Agenda from './Agenda'
 
 const Tab = createMaterialBottomTabNavigator()
-
-// TODO https://www.youtube.com/watch?v=ONAVmsGW6-M 19:03
 
 const bottomBarItems = [
   {
@@ -58,6 +61,7 @@ const colors = [
   '#E04E39',
 ]
 
+
 function createBottomBarTabs() {
   let res = []
   bottomBarItems.forEach(item => {
@@ -69,7 +73,7 @@ function createBottomBarTabs() {
         options={{
           tabBarIcon: ({ focused, color }) => {
             return focused ? (
-              <Ionicons name={item.icons[1]} size={24} color={MD3Colors.primary10} />
+              <Ionicons name={item.icons[1]} size={24} color={MD3Colors.primary20} />
             ) : (
               <Ionicons name={item.icons[0]} size={24} color={MD3Colors.primary90} />
             )
@@ -84,34 +88,66 @@ function createBottomBarTabs() {
 }
 
 export default function Main() {
+  const dispatch = useDispatch()
+
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     onAuthStateChanged(FIREBASE_AUTH, user => {
-      console.log('user:', user)
+      if (user) console.log('User loaded:', user.email)
+      dispatch(saveUser(user))
       setUser(user)
     })
+    setLoading(false)
   }, [])
 
-  if (user) return (
-    <Tab.Navigator
-      initialRouteName="Home"
-      activeColor={MD3Colors.primary90}
-      inactiveColor="#ffcfdf"
-      shifting={true}
-      backBehavior="initialRoute"
-      barStyle={{ backgroundColor: MD3Colors.primary50, }}
-      screenOptions={{ headerShown: false }}
-    >
-      {createBottomBarTabs()}
-    </Tab.Navigator>
+  if (loading) return (
+    <View style={styles.container}>
+      <ActivityIndicator size='large' />
+    </View>
   )
 
-  return <Login />
+  if (user) return (
+    <>
+      <Tab.Navigator
+        initialRouteName="Home"
+        activeColor={MD3Colors.primary90}
+        inactiveColor="#ffcfdf"
+        shifting={true}
+        backBehavior="initialRoute"
+        barStyle={{ backgroundColor: MD3Colors.primary50 }}
+        screenOptions={{ headerShown: false }}
+        compact={true}
+      >
+        {createBottomBarTabs()}
+      </Tab.Navigator>
+      <StatusBar style="light" />
+    </>
+  )
+
+  return (
+    <>
+      <Login />
+      <StatusBar style="dark" />
+    </>
+  )
 }
 
 function IDK() {
-  return <View />
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Text variant="displayLarge">WIP</Text>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

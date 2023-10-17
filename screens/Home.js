@@ -1,38 +1,63 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, FlatList } from 'react-native';
+import { Portal, PaperProvider, Text, Appbar, MD3Colors, FAB } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
+import { useSelector, useDispatch } from 'react-redux'
+import { getDocs, onSnapshot } from 'firebase/firestore';
 
-import { FIREBASE_AUTH } from 'config/firebase';
-import { appointmentsCollection } from 'services/calendar';
+import { getAssignmentsCollection, saveSubjectDocument } from 'services/firestore';
 
-import HomeFAB from 'components/HomeFAB';
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
+import { AddAssignmentModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
 function Homepage({ navigation }) {
+  const user = useSelector(state => state.user.user)
+
   dayjs.extend(UTC)
 
   const toSettings = () => navigation.navigate("Settings")
-  const logOut = () => FIREBASE_AUTH.signOut()
 
-  const [appointments, setAppointments] = useState([])
-  const getAppointment = querySnapshot => {
+  const [assignments, setAssignments] = useState([])
+  const getAssignment = querySnapshot => {
     const data = []
     querySnapshot.forEach(res => {
       const { title, description, dueDate } = res.data()
       data.push({ key: res.id, title, description, dueDate })
     })
-    setAppointments(data)
-    console.log('appointments:', data)
+    setAssignments(data)
+    console.log('Assignment fetched.')
   }
 
-  useEffect(() => appointmentsCollection.onSnapshot(getAppointment), [])
+  const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
+  useEffect(() => {
+    onSnapshot(assignmentsQuery, { next: getAssignment })
+  }, [])
+
+  // const user = useSelector(state => state.user.user)
+  // useEffect(
+  //   () =>
+  //     user ? appointmentsCollection
+  //       .where('ownerUID', '==', user.uid)
+  //       .onSnapshot(getAppointment) : null,
+  //   []
+  // )
+
+  const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
+  const addAssignment = assignment => {
+    if (!user) return
+
+    assignment['ownerUID'] = user.uid
+    console.log('Adding assignment: ' + JSON.stringify(assignment))
+    saveSubjectDocument(assignment)
+
+    setShowAddAssignmentModal(false)
+  }
 
   return (
     <PaperProvider>
@@ -46,36 +71,42 @@ function Homepage({ navigation }) {
           <Appbar.Action icon="home" color={MD3Colors.primary90} />
           <Appbar.Content title="Home" color="white" />
           <Appbar.Action
-            icon="login-variant"
-            color={MD3Colors.primary90}
-            onPress={logOut}
-          />
-          <Appbar.Action
             icon="cog"
             color={MD3Colors.primary90}
             onPress={toSettings}
           />
-          <Appbar.Action
+          {/* <Appbar.Action
             icon="dots-vertical"
             color={MD3Colors.primary90}
             onPress={() => console.log('More')}
-          />
+          /> */}
         </Appbar.Header>
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
           <Clock />
           <View style={{ marginVertical: 8 }}>
-            {appointments.map((item, index) => (
-              <ListCard
-                key={index}
-                title={item.title}
-                description={item.description}
-                date={item.dueDate}
-                image={TestImage}
-              />
-            ))}
+            <FlatList
+              data={assignments}
+              renderItem={({ item }) => (
+                <ListCard
+                  key={item}
+                  title={item.title}
+                  description={item.description}
+                  date={item.dueDate.seconds ?? null}
+                  image={TestImage}
+                  onPress={() => console.log(item)}
+                />
+              )}
+            />
           </View>
-        </ScrollView>
-        <HomeFAB />
+        </View>
+        <HomeFAB
+          assignmentFunction={setShowAddAssignmentModal}
+        />
+        <AddAssignmentModal
+          visible={showAddAssignmentModal}
+          onCancel={() => setShowAddAssignmentModal(false)}
+          onOK={addAssignment}
+        />
       </Portal>
     </PaperProvider>
   )
@@ -92,7 +123,7 @@ export default function Home() {
   )
 }
 
-function Clock({}) {
+function Clock() {
   const [date, setDate] = useState(dayjs())
   const clockInterval = () => {
     setDate(dayjs())
@@ -115,6 +146,45 @@ function Clock({}) {
   )
 }
 
+export function HomeFAB(props) {
+  const [open, setOpen] = useState(false)
+  const onStateChange = () => setOpen(!open)
+
+  const { assignmentFunction } = props
+
+  return (
+    <FAB.Group
+      open={open}
+      visible
+      onDi
+      icon={open ? 'arrow-down' : 'plus'}
+      actions={[
+        {
+          icon: 'bookmark',
+          label: 'Subject',
+          onPress: () => console.log('Pressed star'),
+        },
+        {
+          icon: 'table',
+          label: 'Timetable',
+          onPress: () => console.log('Pressed email'),
+        },
+        {
+          icon: 'book',
+          label: 'Assignment',
+          onPress: () => assignmentFunction(true),
+        },
+      ]}
+      onStateChange={onStateChange}
+      onPress={() => {
+        if (open) {
+          // do something if the speed dial is open
+        }
+      }}
+    />
+  )
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -129,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   time: {
-    fontWeight: '500',
+    fontWeight: '700',
   },
   text: {
     fontFamily: 'font-thai',
