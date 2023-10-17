@@ -1,31 +1,63 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, FlatList } from 'react-native';
+import { Portal, PaperProvider, Text, Appbar, MD3Colors, FAB } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
+import { useSelector, useDispatch } from 'react-redux'
+import { getDocs, onSnapshot } from 'firebase/firestore';
 
-import HomeFAB from 'components/HomeFAB';
+import { getAssignmentsCollection, saveSubjectDocument } from 'services/firestore';
+
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
+import { AddAssignmentModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
 function Homepage({ navigation }) {
-  dayjs.extend(UTC)
+  const user = useSelector(state => state.user.user)
 
-  const [date, setDate] = useState(dayjs())
-  const clockInterval = () => {
-    setDate(dayjs())
-  }
+  dayjs.extend(UTC)
 
   const toSettings = () => navigation.navigate("Settings")
 
+  const [assignments, setAssignments] = useState([])
+  const getAssignment = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const { title, description, dueDate } = res.data()
+      data.push({ key: res.id, title, description, dueDate })
+    })
+    setAssignments(data)
+    console.log('Assignment fetched.')
+  }
+
+  const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
   useEffect(() => {
-    const interval = setInterval(clockInterval, 1000)
-    return () => clearInterval(interval)
+    onSnapshot(assignmentsQuery, { next: getAssignment })
   }, [])
+
+  // const user = useSelector(state => state.user.user)
+  // useEffect(
+  //   () =>
+  //     user ? appointmentsCollection
+  //       .where('ownerUID', '==', user.uid)
+  //       .onSnapshot(getAppointment) : null,
+  //   []
+  // )
+
+  const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
+  const addAssignment = assignment => {
+    if (!user) return
+
+    assignment['ownerUID'] = user.uid
+    console.log('Adding assignment: ' + JSON.stringify(assignment))
+    saveSubjectDocument(assignment)
+
+    setShowAddAssignmentModal(false)
+  }
 
   return (
     <PaperProvider>
@@ -39,47 +71,42 @@ function Homepage({ navigation }) {
           <Appbar.Action icon="home" color={MD3Colors.primary90} />
           <Appbar.Content title="Home" color="white" />
           <Appbar.Action
-            icon="login-variant"
-            color={MD3Colors.primary90}
-            onPress={() => console.log('Login')}
-          />
-          <Appbar.Action
             icon="cog"
             color={MD3Colors.primary90}
-            onPress={() => toSettings()}
+            onPress={toSettings}
           />
-          <Appbar.Action
+          {/* <Appbar.Action
             icon="dots-vertical"
             color={MD3Colors.primary90}
             onPress={() => console.log('More')}
-          />
+          /> */}
         </Appbar.Header>
-        <ScrollView style={styles.container}>
-          <View style={styles.timeElement}>
-            <Text variant="displayLarge" style={styles.time}>
-              {date.format('H:mm:ss')}
-            </Text>
-            <Text variant="titleLarge" style={styles.time}>
-              {date.format('dddd, MMMM D, YYYY')}
-            </Text>
-            {/* <Text style={styles.text}>เทส</Text> */}
-          </View>
+        <View style={styles.container}>
+          <Clock />
           <View style={{ marginVertical: 8 }}>
-            {[...Array(10).keys()].map((n, i) => (
-              <ListCard
-                key={i}
-                title={'Title ' + n}
-                description={
-                  'Nisi ea est veniam adipisicing aliqua est aliqua dolore laboris. ' +
-                  n
-                }
-                image={TestImage}
-              />
-            ))}
+            <FlatList
+              data={assignments}
+              renderItem={({ item }) => (
+                <ListCard
+                  key={item}
+                  title={item.title}
+                  description={item.description}
+                  date={item.dueDate.seconds ?? null}
+                  image={TestImage}
+                  onPress={() => console.log(item)}
+                />
+              )}
+            />
           </View>
-          {/* <View></View> */}
-        </ScrollView>
-        <HomeFAB />
+        </View>
+        <HomeFAB
+          assignmentFunction={setShowAddAssignmentModal}
+        />
+        <AddAssignmentModal
+          visible={showAddAssignmentModal}
+          onCancel={() => setShowAddAssignmentModal(false)}
+          onOK={addAssignment}
+        />
       </Portal>
     </PaperProvider>
   )
@@ -87,12 +114,74 @@ function Homepage({ navigation }) {
 
 export default function Home() {
   return (
-    <Stack.Navigator initialRouteName='Home' screenOptions={{
+    <Stack.Navigator initialRouteName='Homepage' screenOptions={{
       headerShown: false,
     }}>
-      <Stack.Screen name='Home' component={Homepage} />
+      <Stack.Screen name='Homepage' component={Homepage} />
       <Stack.Screen name='Settings' component={Settings} />
     </Stack.Navigator>
+  )
+}
+
+function Clock() {
+  const [date, setDate] = useState(dayjs())
+  const clockInterval = () => {
+    setDate(dayjs())
+  }
+
+  useEffect(() => {
+    const interval = setInterval(clockInterval, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <View style={styles.timeElement}>
+      <Text variant="displayLarge" style={styles.time}>
+        {date.format('H:mm:ss')}
+      </Text>
+      <Text variant="titleLarge" style={styles.time}>
+        {date.format('dddd, MMMM D, YYYY')}
+      </Text>
+    </View>
+  )
+}
+
+export function HomeFAB(props) {
+  const [open, setOpen] = useState(false)
+  const onStateChange = () => setOpen(!open)
+
+  const { assignmentFunction } = props
+
+  return (
+    <FAB.Group
+      open={open}
+      visible
+      onDi
+      icon={open ? 'arrow-down' : 'plus'}
+      actions={[
+        {
+          icon: 'bookmark',
+          label: 'Subject',
+          onPress: () => console.log('Pressed star'),
+        },
+        {
+          icon: 'table',
+          label: 'Timetable',
+          onPress: () => console.log('Pressed email'),
+        },
+        {
+          icon: 'book',
+          label: 'Assignment',
+          onPress: () => assignmentFunction(true),
+        },
+      ]}
+      onStateChange={onStateChange}
+      onPress={() => {
+        if (open) {
+          // do something if the speed dial is open
+        }
+      }}
+    />
   )
 }
 
@@ -110,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   time: {
-    fontWeight: '500',
+    fontWeight: '700',
   },
   text: {
     fontFamily: 'font-thai',
