@@ -1,13 +1,17 @@
-import { View, ScrollView, StyleSheet, SafeAreaView } from 'react-native'
+import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
 import { useState } from 'react'
 import { Text, Appbar, ActivityIndicator, MD3Colors, Chip } from 'react-native-paper'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
+// import { getSubjectsCollection } from 'services/firestore'
+import { DAYS } from 'constants'
+import { useSelector, useDispatch } from 'react-redux'
 
 import ListCard from 'components/ListCard'
 import TestImage from 'assets/icon.png'
 
 const Tab = createMaterialTopTabNavigator()
+// const subjectsCollection = getSubjectsCollection()
 
 export default function SubjectInfo({ navigation, route }) {
   console.log('main :', route)
@@ -26,7 +30,6 @@ export default function SubjectInfo({ navigation, route }) {
           backgroundColor: 'white'
         }
       }}
-      onPres
     >
       <Tab.Screen
         name="SubjectInfoTab"
@@ -49,23 +52,40 @@ function SubjectInfoTab({ navigation, route }) {
 
   return (
     <ScrollView style={styles.container}>
+      {subject.image ? (
+        <Image src={subject.image} style={{
+          height: 200,
+          borderWidth: 2,
+          borderColor: '#eee',
+          borderRadius: 15,
+          marginBottom: 4
+        }} />
+      ) : null}
       <ListCard title="Teacher" description="Lorem Ipsum" image={TestImage} />
       <ListCard
         title="Description"
         description={subject.description}
-        icon={<MaterialIcons name="info" size={40} color="gray" />}
+        icon={<MaterialIcons name="info" size={40} color={MD3Colors.primary50} />}
       />
       <ListCard
         title="Timetable"
-        icon={<MaterialIcons name="today" size={40} color="gray" />}
+        icon={<MaterialIcons name="today" size={40} color={MD3Colors.primary50} />}
       >
-        <Chip icon="information" onPress={() => console.log('Pressed')} style={styles.chip}>
-          Example Chip
-        </Chip>
-        <Chip icon="information" onPress={() => console.log('Pressed')} style={styles.chip}>
-          Example Chip
-        </Chip>
+        {subject.timetable ? subject.timetable.map((item, index) => (
+          <Chip
+            key={index}
+            icon="information"
+            onPress={() => console.log('Pressed')}
+            style={styles.chip}
+          >
+            {DAYS[item.day].short}, {(item.h + '').padStart(2, '0')}:
+            {(item.m + '').padStart(2, '0')}
+          </Chip>
+        )) : (
+          <Text style={{ fontStyle: 'italic' }}>None</Text>
+        )}
       </ListCard>
+      <View style={{ marginVertical: 16 }} />
     </ScrollView>
   )
 }
