@@ -5,14 +5,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
 import { useSelector, useDispatch } from 'react-redux'
-import { getDocs, onSnapshot } from 'firebase/firestore';
+import { Timestamp, getDocs, onSnapshot } from 'firebase/firestore';
+import _ from 'lodash';
 
-import { getAssignmentsCollection, saveSubjectDocument } from 'services/firestore';
+import { getAssignmentsCollection, saveAssignmentDocument } from 'services/firestore';
 
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
-import { AddAssignmentModal } from 'components/modal';
+import { AddAssignmentModal, AssigmentDetailModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
@@ -21,32 +22,27 @@ function Homepage({ navigation }) {
 
   dayjs.extend(UTC)
 
-  const toSettings = () => navigation.navigate("Settings")
-
   const [assignments, setAssignments] = useState([])
   const getAssignment = querySnapshot => {
     const data = []
     querySnapshot.forEach(res => {
-      const { title, description, dueDate } = res.data()
-      data.push({ key: res.id, title, description, dueDate })
+      const assignmentData = res.data()
+      data.push({ key: res.id, ...assignmentData })
     })
-    setAssignments(data)
+
+    const now = new Date()
+    const unfinishedData = data.filter(
+      item => now < new Timestamp(item.dueDate.seconds, item.dueDate.nanoseconds).toDate()
+    )
+    const sortedData = _.sortBy(unfinishedData, item => item.dueDate.seconds)
+    setAssignments(sortedData)
     console.log('Assignment fetched.')
   }
 
-  const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
+  const assignmentsQuery = getAssignmentsCollection(user.uid)
   useEffect(() => {
     onSnapshot(assignmentsQuery, { next: getAssignment })
   }, [])
-
-  // const user = useSelector(state => state.user.user)
-  // useEffect(
-  //   () =>
-  //     user ? appointmentsCollection
-  //       .where('ownerUID', '==', user.uid)
-  //       .onSnapshot(getAppointment) : null,
-  //   []
-  // )
 
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
   const addAssignment = assignment => {
@@ -54,72 +50,82 @@ function Homepage({ navigation }) {
 
     assignment['ownerUID'] = user.uid
     console.log('Adding assignment: ' + JSON.stringify(assignment))
-    saveSubjectDocument(assignment)
+    saveAssignmentDocument(assignment)
 
     setShowAddAssignmentModal(false)
   }
 
+  const [showAssignmentDetails, setShowAssignmentDetails] = useState(false)
+  const [assignmentData, setAssignmentData] = useState({})
+  const showModal = data => {
+    setAssignmentData(data)
+    setShowAssignmentDetails(true)
+  }
+
   return (
     <PaperProvider>
-      <Portal>
-        <Appbar.Header
-          mode="small"
-          style={{
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.Action icon="home" color={MD3Colors.primary90} />
-          <Appbar.Content title="Home" color="white" />
-          <Appbar.Action
-            icon="cog"
-            color={MD3Colors.primary90}
-            onPress={toSettings}
+      <View style={styles.container}>
+        <Clock />
+        <View style={{ marginVertical: 8 }}>
+          <FlatList
+            data={assignments}
+            renderItem={({ item }) => (
+              <ListCard
+                key={item}
+                title={item.title}
+                description={item.description}
+                date={item.dueDate.seconds ?? null}
+                image={TestImage}
+                onPress={() => showModal(item)}
+              />
+            )}
           />
-          {/* <Appbar.Action
-            icon="dots-vertical"
-            color={MD3Colors.primary90}
-            onPress={() => console.log('More')}
-          /> */}
-        </Appbar.Header>
-        <View style={styles.container}>
-          <Clock />
-          <View style={{ marginVertical: 8 }}>
-            <FlatList
-              data={assignments}
-              renderItem={({ item }) => (
-                <ListCard
-                  key={item}
-                  title={item.title}
-                  description={item.description}
-                  date={item.dueDate.seconds ?? null}
-                  image={TestImage}
-                  onPress={() => console.log(item)}
-                />
-              )}
-            />
-          </View>
         </View>
-        <HomeFAB
-          assignmentFunction={setShowAddAssignmentModal}
-        />
-        <AddAssignmentModal
-          visible={showAddAssignmentModal}
-          onCancel={() => setShowAddAssignmentModal(false)}
-          onOK={addAssignment}
-        />
-      </Portal>
+      </View>
+      <HomeFAB assignmentFunction={setShowAddAssignmentModal} />
+      <AddAssignmentModal
+        visible={showAddAssignmentModal}
+        onCancel={() => setShowAddAssignmentModal(false)}
+        onOK={addAssignment}
+      />
+      <AssigmentDetailModal
+        data={assignmentData}
+        visible={showAssignmentDetails}
+        onDismiss={() => setShowAssignmentDetails(false)}
+      />
     </PaperProvider>
   )
 }
 
-export default function Home() {
+export default function Home({ navigation }) {
   return (
     <Stack.Navigator initialRouteName='Homepage' screenOptions={{
-      headerShown: false,
+      header: HomeHeader
     }}>
       <Stack.Screen name='Homepage' component={Homepage} />
-      <Stack.Screen name='Settings' component={Settings} />
+      <Stack.Screen name='Settings' component={Settings} options={{ headerShown: false }} />
     </Stack.Navigator>
+  )
+}
+
+function HomeHeader({ navigation }) {
+  const toSettings = () => navigation.navigate('Settings')
+
+  return (
+    <Appbar.Header
+      mode="small"
+      style={{
+        backgroundColor: MD3Colors.primary50,
+      }}
+    >
+      <Appbar.Action icon="home" color={MD3Colors.primary90} />
+      <Appbar.Content title="Home" color="white" />
+      <Appbar.Action
+        icon="cog"
+        color={MD3Colors.primary90}
+        onPress={toSettings}
+      />
+    </Appbar.Header>
   )
 }
 
@@ -156,7 +162,6 @@ export function HomeFAB(props) {
     <FAB.Group
       open={open}
       visible
-      onDi
       icon={open ? 'arrow-down' : 'plus'}
       actions={[
         {
