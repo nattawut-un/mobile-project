@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Timestamp, getDocs, onSnapshot } from 'firebase/firestore';
 import _ from 'lodash';
 
-import { getAssignmentsCollection, saveAssignmentDocument } from 'services/firestore';
+import { addAssignmentDocument, addSubjectDocument, getAssignmentsCollection, saveAssignmentDocument } from 'services/firestore';
 
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
@@ -41,19 +41,20 @@ function Homepage({ navigation }) {
 
   const assignmentsQuery = getAssignmentsCollection(user.uid)
   useEffect(() => {
-    onSnapshot(assignmentsQuery, { next: getAssignment })
+    const unsub = onSnapshot(assignmentsQuery, { next: getAssignment })
+    return () => unsub()
   }, [])
 
-  // const user = useSelector(state => state.user.user)
-  // useEffect(
-  //   () =>
-  //     user ? appointmentsCollection
-  //       .where('ownerUID', '==', user.uid)
-  //       .onSnapshot(getAppointment) : null,
-  //   []
-  // )
-
   const [showAddSubjectModal, setShowAddSubjectModal] = useState(false)
+  const addSubject = subject => {
+    if (!subject) return
+
+    subject['ownerUID'] = user.uid
+    console.log('Adding subject: ' + JSON.stringify(subject))
+    addSubjectDocument(subject)
+
+    setShowAddSubjectModal(false)
+  }
 
   const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
 
@@ -63,7 +64,7 @@ function Homepage({ navigation }) {
 
     assignment['ownerUID'] = user.uid
     console.log('Adding assignment: ' + JSON.stringify(assignment))
-    saveAssignmentDocument(assignment)
+    addAssignmentDocument(assignment)
 
     setShowAddAssignmentModal(false)
   }
@@ -103,7 +104,7 @@ function Homepage({ navigation }) {
       <AddSubjectModal
         visible={showAddSubjectModal}
         onCancel={() => setShowAddSubjectModal(false)}
-        // onOK={addSubject}
+        onOK={addSubject}
       />
       <AddTimetableModal
         visible={showAddTimetableModal}

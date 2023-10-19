@@ -25,7 +25,9 @@ import { useSelector, useDispatch } from 'react-redux'
 // import storage from 'data/storage'
 import TestImage from 'assets/placeholder.png'
 import { getSubjectsCollection } from 'services/firestore'
-import { onSnapshot } from 'firebase/firestore'
+import { getDoc, onSnapshot } from 'firebase/firestore'
+import { AddSubjectModal } from 'components/modal'
+import { addSubjectDocument } from 'services/firestore'
 
 const dummyData = [
   {
@@ -44,11 +46,6 @@ const dummyData = [
 ]
 
 export default function SubjectHome({ navigation }) {
-  
-  // Subject List
-  // const [subject, setSubject] = useState([])
-  // const [nextId, setNextId] = useState(subject.length)
-
   // FAB
   const [isExtended, setIsExtended] = useState(true)
   const [offset, setOffset] = useState(0)
@@ -62,20 +59,6 @@ export default function SubjectHome({ navigation }) {
   const [visibleSnackbar, setVisibleSnackbar] = useState(false)
   const onToggleSnackBar = () => setVisibleSnackbar(!visibleSnackbar)
   const onDismissSnackBar = () => setVisibleSnackbar(false)
-
-  // Modal: Add subject
-  const [visibleModalAddSubject, setVisibleModalAddSubject] = useState(false)
-  const showModal = () => setVisibleModalAddSubject(true)
-  const hideModal = () => {
-    setVisibleModalAddSubject(false)
-    clearAllFields()
-  }
-  const [newSubjectTitle, setNewSubjectTitle] = useState('')
-  const [newSubjectDescription, setNewSubjectDescription] = useState('')
-  const clearAllFields = () => {
-    setNewSubjectTitle('')
-    setNewSubjectDescription('')
-  }
 
   // Header
   const [visibleHeaderMenu, setVisibleHeaderMenu] = useState(false)
@@ -93,53 +76,34 @@ export default function SubjectHome({ navigation }) {
   const [searchFocus, setSearchFocus] = useState(false)
   const onChangeSearch = query => setSearchQuery(query)
 
-  const addSubject = () => {
-    const newSubject = {
-      id: nextId,
-      title: newSubjectTitle,
-      description: newSubjectDescription,
-      createDate: dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]'),
-    }
-    setSubject([...subject, newSubject])
-    setNextId(nextId + 1)
-    hideModal()
-    // saveSubjectData()
-    console.log('Added new subject: ' + JSON.stringify(newSubject))
-  }
-  const deleteSubject = id => {
-    const newSubjectList = cloneDeep(subject)
-    for (let i = 0; i < newSubjectList.length; i++) {
-      if (newSubjectList[i].id === id) {
-        newSubjectList.splice(i, 1)
-        console.log('Deleted subject. id: ' + id)
-      }
-    }
-    setSubject(newSubjectList)
-    onToggleSnackBar()
-  }
-  const deleteAll = () => {
-    setSubject([])
-    setNextId(0)
-    console.log('Deleted all subjects.')
-  }
-
   // Firestore
   const [subjects, setSubjects] = useState([])
   const getSubject = querySnapshot => {
     const data = []
     querySnapshot.forEach(res => {
-      const { title, description, ownerId, teacher, timetable, image } = res.data()
-      data.push({ key: res.id, title, description, ownerId, teacher, timetable, image })
+      const fields = res.data()
+      data.push({ key: res.id, ...fields })
     })
     setSubjects(data)
-    console.log('subjects:', data)
   }
 
   const user = useSelector(state => state.user.user)
   const subjectsQuery = getSubjectsCollection(user ? user.uid : '')
   useEffect(() => {
-    onSnapshot(subjectsQuery, { next: getSubject })
+    const unsub = onSnapshot(subjectsQuery, { next: getSubject })
+    return () => unsub()
   }, [])
+
+  const [showAddSubjectModal, setShowAddSubjectModal] = useState(false)
+  const addSubject = subject => {
+    if (!subject) return
+
+    subject['ownerUID'] = user.uid
+    console.log('Adding subject: ' + JSON.stringify(subject))
+    addSubjectDocument(subject)
+
+    setShowAddSubjectModal(false)
+  }
 
   return (
     <>
@@ -158,57 +122,16 @@ export default function SubjectHome({ navigation }) {
             onBlur={() => setSearchFocus(false)}
             value={searchQuery}
             style={{
-              // width: searchFocus || searchQuery ? 300 : 100,
-              // width: '100%',
               backgroundColor: MD3Colors.primary90,
             }}
           />
         </View>
-        {/* <PaperProvider> */}
-        {/* <Menu
-          visible={visibleHeaderMenu}
-          onDismiss={hideMenu}
-          anchor={{ x: 600, y: 60 }}
-        >
-          <Menu.Item
-            onPress={() => {
-              hideMenu()
-              showModal()
-            }}
-            title="Add item"
-          />
-          <Menu.Item
-            onPress={() => {
-              hideMenu()
-              deleteAll()
-            }}
-            title="Delete all"
-          />
-        </Menu> */}
-        {/* </PaperProvider> */}
-        {/* <ScrollView onScroll={onScroll}> */}
-        {/* <View style={{ marginVertical: 55 }} /> */}
-        {/* <Appbar.Header mode="large">
-            <Appbar.Content title="Subjects" />
-          </Appbar.Header> */}
-        {/* <Button
-            mode="contained"
-            icon="bookmark"
-            buttonColor="purple"
-            onPress={readData}
-            style={{ margin: 16 }}
-          >
-            Read Data
-          </Button> */}
         <FlatList
+          style={{ marginBottom: 70 }}
           data={subjects}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() =>
-                // navigation.navigate('SubjectInfo', {
-                //   screen: 'SubjectInfoTab',
-                //   params: { subject: item },
-                // })
                 navigation.navigate('SubjectInfo', { subject: item })
               }
             >
@@ -243,77 +166,22 @@ export default function SubjectHome({ navigation }) {
                     <Chip style={{ marginRight: 8 }}>__ Homeworks</Chip>
                   </View>
                 </Card.Content>
-                <Card.Actions>
-                  {/* <Button onPress={() => deleteSubject(item.id)}>Delete</Button> */}
-                  {/* <Button
-                        mode="contained"
-                        onPress={() =>
-                          // navigation.navigate('SubjectInfo', {
-                          //   screen: 'SubjectInfoTab',
-                          //   params: { subject: item },
-                          // })
-                          navigation.navigate('SubjectInfo', { subject: item })
-                        }
-                      >
-                        Show
-                      </Button> */}
-                </Card.Actions>
               </Card>
             </TouchableOpacity>
           )}
         />
-        <View style={{ marginVertical: 128 }} />
-        {/* </ScrollView> */}
-        <Portal>
-          <Modal
-            visible={visibleModalAddSubject}
-            onDismiss={hideModal}
-            contentContainerStyle={styles.modal}
-          >
-            <Text
-              variant="titleLarge"
-              style={{ fontWeight: 'bold', marginVertical: 4 }}
-            >
-              Add Subject...
-            </Text>
-            <TextInput
-              label="Title"
-              mode="outlined"
-              value={newSubjectTitle}
-              onChangeText={setNewSubjectTitle}
-              style={{ marginVertical: 4 }}
-            />
-            <TextInput
-              label="Description"
-              mode="outlined"
-              value={newSubjectDescription}
-              onChangeText={setNewSubjectDescription}
-              style={{ marginVertical: 4 }}
-            />
-            <View style={{ marginVertical: 8 }} />
-            <Button
-              mode="contained"
-              style={{ marginVertical: 4 }}
-              onPress={addSubject}
-            >
-              Add
-            </Button>
-            <Button
-              mode="outlined"
-              style={{ marginVertical: 4 }}
-              onPress={hideModal}
-            >
-              Cancel
-            </Button>
-          </Modal>
-        </Portal>
       </SafeAreaView>
       <AnimatedFAB
         icon="plus"
         label="Add"
         extended={isExtended}
-        onPress={showModal}
+        onPress={() => setShowAddSubjectModal(true)}
         style={[styles.fabStyle, { animateFrom: 16 }]}
+      />
+      <AddSubjectModal
+        visible={showAddSubjectModal}
+        onCancel={() => setShowAddSubjectModal(false)}
+        onOK={addSubject}
       />
       {/* <Snackbar
         visible={visibleSnackbar}

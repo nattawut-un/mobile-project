@@ -1,9 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, Image, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
 import { Text, Dialog, Button, Portal, PaperProvider, TextInput, MD3Colors, HelperText, Modal } from "react-native-paper";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from "dayjs";
 import { Timestamp } from "firebase/firestore";
+import * as ImagePicker from 'expo-image-picker'
+import DropDown from 'react-native-paper-dropdown'
+
+import { uploadFileToStorage } from "services/fb_storage";
 import { deleteAssignmentDocument, saveAssignmentDocument } from "services/firestore";
 
 /**
@@ -84,6 +88,9 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
     setDate(new Date())
   }
 
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [subject, setSubject] = useState("")
+
   return (
     <>
       <Portal>
@@ -97,9 +104,9 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
               value={title}
               onChangeText={setTitle}
             />
-            <HelperText type='error' visible={isTextBlank()}>
+            {/* <HelperText type='error' visible={isTextBlank()}>
               Title cannot be blank
-            </HelperText>
+            </HelperText> */}
             <TextInput
               label="Description"
               mode="outlined"
@@ -109,6 +116,17 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
               value={description}
               onChangeText={setDescription}
             />
+            {/* <DropDown
+              label="Subject"
+              mode="outlined"
+              visible={showDropdown}
+              dropDownStyle={{ backgroundColor: '#eee8f4' }}
+              showDropdown={() => setShowDropdown(true)}
+              onDismiss={() => setShowDropdown(false)}
+              value={subject}
+              setValue={setSubject}
+              list={testList}
+            /> */}
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
               Date & Time
             </Text>
@@ -170,17 +188,10 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
 export function AddSubjectModal(props) {
   const { visible, onCancel, onOK } = props
 
-  const [date, setDate] = useState(new Date())
-  const [mode, setMode] = useState('date')
-  const [show, setShow] = useState(false)
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate
-    setShow(false)
-    setDate(currentDate)
-  }
-
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [teacher, setTeacher] = useState('')
+  const [file, setFile] = useState(null)
 
   const isTextBlank = () => title.length <= 0
 
@@ -189,15 +200,19 @@ export function AddSubjectModal(props) {
     onCancel()
   }
 
-  const pressOK = () => {
-    if (isTextBlank()) return
+  const pressOK = async () => {
+    const splittedPath = file.uri.split('/')
+    const fileName = splittedPath[splittedPath.length - 1]
+    const extension = fileName.split('.')[1]
 
-    var document = {
-      title,
-      description,
-      dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
-    }
-    onOK(document)
+    const filePath = file.uri
+    const uploadPath = '/subjects/' + new Date().getTime() + '.' + extension
+
+    const imageUri = await uploadFileToStorage(filePath, uploadPath)
+    console.log(imageUri)
+
+    const data = { title, teacher, description, image: imageUri }
+    onOK(data)
 
     clearInput()
   }
@@ -205,72 +220,78 @@ export function AddSubjectModal(props) {
   const clearInput = () => {
     setTitle('')
     setDescription('')
-    setDate(new Date())
+    setTeacher('')
+    setFile(null)
   }
 
   return (
     <>
       <Portal>
-        <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog visible={visible} onDismiss={pressCancel}>
           <Dialog.Title>Add Subject</Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label="Title"
-              mode="outlined"
-              style={styles.textInput}
-              value={title}
-              onChangeText={setTitle}
-            />
-            <HelperText type='error' visible={isTextBlank()}>
-              Title cannot be blank
-            </HelperText>
-            <TextInput
-              label="Description"
-              mode="outlined"
-              style={{ ...styles.textInput, height: null }}
-              multiline={true}
-              numberOfLines={3}
-              value={description}
-              onChangeText={setDescription}
-            />
-            <Text variant="labelMedium" style={{ marginTop: 8 }}>
-              Date & Time
-            </Text>
-            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          <Dialog.ScrollArea>
+            <ScrollView>
+              <TextInput
+                label="Title"
+                mode="outlined"
+                style={styles.textInput}
+                value={title}
+                onChangeText={setTitle}
+              />
+              {/* <HelperText type="error" visible={isTextBlank()}>
+                Title cannot be blank
+              </HelperText> */}
+              <TextInput
+                label="Teacher"
+                mode="outlined"
+                style={styles.textInput}
+                value={teacher}
+                onChangeText={setTeacher}
+              />
+              <TextInput
+                label="Description"
+                mode="outlined"
+                style={{ ...styles.textInput, height: null }}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={3}
+              />
               <Button
-                style={{
-                  marginVertical: 4,
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                  width: '65%',
-                }}
-                icon="calendar"
+                style={{ marginVertical: 8 }}
+                icon={file ? 'file' : 'file-outline'}
                 mode="contained"
-                onPress={() => {
-                  setMode('date')
-                  setShow(true)
+                onPress={async () => {
+                  const res = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.All,
+                    allowsEditing: true,
+                    aspect: [16, 9],
+                    quality: 1,
+                  })
+                  console.log(res)
+                  if (!res.canceled) setFile(res.assets[0])
                 }}
               >
-                {dayjs(date).format('ddd, DD MMM, YYYY')}
+                {file ? 'Image added' : 'Select File'}
               </Button>
-              <Button
-                style={{
-                  marginVertical: 4,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  width: '35%',
-                }}
-                icon="clock"
-                mode="contained"
-                onPress={() => {
-                  setMode('time')
-                  setShow(true)
-                }}
-              >
-                {dayjs(date).format('HH:mm')}
-              </Button>
-            </View>
-          </Dialog.Content>
+              {file ? (
+                <Image
+                  source={{ uri: file.uri }}
+                  style={{ width: '100%', height: 150, borderRadius: 15 }}
+                />
+              ) : null}
+              {file ? (
+                <Button
+                  icon="delete"
+                  textColor="red"
+                  style={{ marginTop: 8 }}
+                  onPress={() => setFile(null)}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </ScrollView>
+          </Dialog.ScrollArea>
           <Dialog.Actions>
             <Button onPress={pressCancel}>Cancel</Button>
             <Button onPress={pressOK} mode="contained">
@@ -279,14 +300,6 @@ export function AddSubjectModal(props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      {show ? (
-        <DateTimePicker
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          onChange={onDateChange}
-        />
-      ) : null}
     </>
   )
 }
@@ -345,9 +358,9 @@ export function AddTimetableModal(props) {
               value={title}
               onChangeText={setTitle}
             />
-            <HelperText type='error' visible={isTextBlank()}>
+            {/* <HelperText type='error' visible={isTextBlank()}>
               Title cannot be blank
-            </HelperText>
+            </HelperText> */}
             <TextInput
               label="Description"
               mode="outlined"

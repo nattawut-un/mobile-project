@@ -1,14 +1,18 @@
 import { FIRESTORE_DB } from "config/firebase";
-import { firebase } from 'config/firebase'
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
-
-const db = firebase.firestore()
+import {
+  addDoc, collection, deleteDoc, doc, getDoc,
+  onSnapshot, orderBy, query, setDoc, where,
+} from "firebase/firestore";
 
 export const getAssignmentsCollection = userId => {
   return query(
     collection(FIRESTORE_DB, 'assignment'),
     where('ownerUID', '==', userId)
   )
+}
+
+export const addAssignmentDocument = data => {
+  addDoc(collection(FIRESTORE_DB, 'assignment'), data)
 }
 
 export const saveAssignmentDocument = (docId, data) => {
@@ -24,6 +28,10 @@ export const getSubjectsCollection = userId => {
     collection(FIRESTORE_DB, 'subject'),
     where('ownerUID', '==', userId)
   )
+}
+
+export const addSubjectDocument = data => {
+  addDoc(collection(FIRESTORE_DB, 'subject'), data)
 }
 
 // const col = collection(FIRESTORE_DB, 'assignment')
