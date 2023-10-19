@@ -10,6 +10,8 @@ import Settings from './Settings'
 import Calendar from './Calendar'
 import Subject from './Subject'
 import Agenda from './Agenda'
+import Reward from './Reward'
+
 
 const Tab = createMaterialBottomTabNavigator()
 
@@ -36,7 +38,7 @@ const bottomBarItems = [
   },
   {
     name: 'Rewards',
-    component: IDK,
+    component: Reward,
     icons: ['pricetags-outline', 'pricetags'],
   },
 ]
