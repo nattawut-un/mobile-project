@@ -20,6 +20,8 @@ import Subject from './Subject'
 import Agenda from './Agenda'
 import QrCode from './Reward/Qrcode'
 import CalendarDetails from './Calendar/CalendarDetails'
+import AdminHome from './AdminPage/Home'
+import AdminItems from './AdminPage/Items'
 
 const Tab = createMaterialBottomTabNavigator()
 
@@ -46,7 +48,7 @@ const bottomBarItems = [
   },
   {
     name: 'Rewards',
-    component: QrCode,
+    component: AdminItems,
     icons: ['pricetags-outline', 'pricetags'],
   },
 ]
