@@ -12,7 +12,7 @@ import { getAssignmentsCollection, saveSubjectDocument } from 'services/firestor
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
-import { AddAssignmentModal } from 'components/modal';
+import { AddAssignmentModal, AddSubjectModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
@@ -48,6 +48,9 @@ function Homepage({ navigation }) {
   //   []
   // )
 
+  const [showAddSubjectModal, setShowAddSubjectModal] = useState(false)
+
+  
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
   const addAssignment = assignment => {
     if (!user) return
@@ -101,6 +104,12 @@ function Homepage({ navigation }) {
         </View>
         <HomeFAB
           assignmentFunction={setShowAddAssignmentModal}
+          subjectFunction={setShowAddSubjectModal}
+        />
+        <AddSubjectModal
+          visible={showAddSubjectModal}
+          onCancel={() => setShowAddSubjectModal(false)}
+          // onOK={addSubject}
         />
         <AddAssignmentModal
           visible={showAddAssignmentModal}
@@ -150,7 +159,7 @@ export function HomeFAB(props) {
   const [open, setOpen] = useState(false)
   const onStateChange = () => setOpen(!open)
 
-  const { assignmentFunction } = props
+  const { assignmentFunction, subjectFunction } = props
 
   return (
     <FAB.Group
@@ -162,7 +171,7 @@ export function HomeFAB(props) {
         {
           icon: 'bookmark',
           label: 'Subject',
-          onPress: () => console.log('Pressed star'),
+          onPress: () => subjectFunction(true),
         },
         {
           icon: 'table',
