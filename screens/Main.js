@@ -14,13 +14,8 @@ import { saveUser } from 'config/redux'
 
 import Login from './Login'
 import Home from './Home'
-import Settings from './Settings'
 import Calendar from './Calendar'
 import Subject from './Subject'
-import Agenda from './Agenda'
-import QrCode from './Reward/Qrcode'
-import CalendarDetails from './Calendar/CalendarDetails'
-import AdminHome from './AdminPage/Home'
 import AdminItems from './AdminPage/Items'
 
 const Tab = createMaterialBottomTabNavigator()
