@@ -12,7 +12,7 @@ import { getAssignmentsCollection, saveSubjectDocument } from 'services/firestor
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
-import { AddAssignmentModal } from 'components/modal';
+import { AddAssignmentModal, AddSubjectModal, AddTimetableModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
@@ -47,6 +47,10 @@ function Homepage({ navigation }) {
   //       .onSnapshot(getAppointment) : null,
   //   []
   // )
+
+  const [showAddSubjectModal, setShowAddSubjectModal] = useState(false)
+
+  const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
 
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
   const addAssignment = assignment => {
@@ -101,6 +105,18 @@ function Homepage({ navigation }) {
         </View>
         <HomeFAB
           assignmentFunction={setShowAddAssignmentModal}
+          timetableFunction={setShowAddTimetableModal}
+          subjectFunction={setShowAddSubjectModal}
+        />
+        <AddSubjectModal
+          visible={showAddSubjectModal}
+          onCancel={() => setShowAddSubjectModal(false)}
+        // onOK={addSubject}
+        />
+        <AddTimetableModal
+          visible={showAddTimetableModal}
+          onCancel={() => setShowAddTimetableModal(false)}
+        // onOK={addSubject}
         />
         <AddAssignmentModal
           visible={showAddAssignmentModal}
@@ -150,7 +166,7 @@ export function HomeFAB(props) {
   const [open, setOpen] = useState(false)
   const onStateChange = () => setOpen(!open)
 
-  const { assignmentFunction } = props
+  const { assignmentFunction, timetableFunction, subjectFunction } = props
 
   return (
     <FAB.Group
@@ -162,12 +178,12 @@ export function HomeFAB(props) {
         {
           icon: 'bookmark',
           label: 'Subject',
-          onPress: () => console.log('Pressed star'),
+          onPress: () => subjectFunction(true),
         },
         {
           icon: 'table',
           label: 'Timetable',
-          onPress: () => console.log('Pressed email'),
+          onPress: () => timetableFunction(true),
         },
         {
           icon: 'book',
