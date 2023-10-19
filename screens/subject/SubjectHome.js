@@ -217,8 +217,7 @@ export default function SubjectHome({ navigation }) {
                 style={{
                   marginHorizontal: 16,
                   marginVertical: 8,
-                  borderColor: MD3Colors.primary90,
-                  borderWidth: 2,
+                  backgroundColor: MD3Colors.primary95,
                   shadowColor: '#0000'
                 }}
               >
@@ -309,14 +308,14 @@ export default function SubjectHome({ navigation }) {
           </Modal>
         </Portal>
       </SafeAreaView>
-      {/* <AnimatedFAB
+      <AnimatedFAB
         icon="plus"
         label="Add"
         extended={isExtended}
         onPress={showModal}
         style={[styles.fabStyle, { animateFrom: 16 }]}
-      /> */}
-      <Snackbar
+      />
+      {/* <Snackbar
         visible={visibleSnackbar}
         onDismiss={onDismissSnackBar}
         action={{
@@ -327,7 +326,7 @@ export default function SubjectHome({ navigation }) {
         }}
       >
         Subject is deleted.
-      </Snackbar>
+      </Snackbar> */}
     </>
   )
 }
