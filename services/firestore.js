@@ -1,6 +1,6 @@
 import { FIRESTORE_DB } from "config/firebase";
 import { firebase } from 'config/firebase'
-import { addDoc, collection, doc, getDoc, onSnapshot, query, setDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
 
 const db = firebase.firestore()
 
@@ -11,8 +11,12 @@ export const getAssignmentsCollection = userId => {
   )
 }
 
-export const saveSubjectDocument = assignment => {
-  addDoc(collection(FIRESTORE_DB, 'assignment'), assignment)
+export const saveAssignmentDocument = (docId, data) => {
+  setDoc(doc(FIRESTORE_DB, 'assignment', docId), data)
+}
+
+export const deleteAssignmentDocument = docId => {
+  deleteDoc(doc(FIRESTORE_DB, 'assignment', docId))
 }
 
 export const getSubjectsCollection = userId => {

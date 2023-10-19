@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native'
-import { MD3Colors, Text } from 'react-native-paper'
+import { MD3Colors, Text, Modal } from 'react-native-paper'
 import { MaterialIcons } from '@expo/vector-icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -11,13 +12,14 @@ dayjs.extend(relativeTime)
  * @param {string} props.title Card title
  * @param {string} props.description Card description
  * @param {string} props.image Path of an image
- * @param {string} props.date Due date
+ * @param {number} props.date Due date in UNIX seconds
+ * @param {boolean} props.showTime Shows time instead of relative time
  * @param {JSX.Element} props.icon Icon element
  * @param {JSX.Element} props.children Children element
  * @param {() => void} props.onPress Function to call when the card is selected
  */
 export default function ListCard(props) {
-  const { title, description, image, date, icon, children, onPress } = props
+  const { title, description, image, date, showTime, icon, children, onPress } = props
   const dueDate = dayjs.unix(date) ?? null
 
   return (
@@ -32,12 +34,17 @@ export default function ListCard(props) {
         )}
       </View>
       <View style={{ width: '85%' }}>
-        <Text variant="labelLarge">{title}</Text>
-        {date ? (
-          <Text variant="labelMedium">
-            {dueDate.fromNow()} ({dueDate.format('DD MMM YYYY, HH:ss')})
+        <View style={{ flexDirection: 'row' }}>
+          <Text variant="labelLarge" style={{ width: date ? '70%' : '100%' }}>
+            {title}
           </Text>
-        ) : null}
+          {date ? (
+            <Text variant="labelMedium" style={styles.relativeTime}>
+              {showTime ? dueDate.format('HH:mm') : dueDate.fromNow()}
+              {/* ({dueDate.format('DD MMM YYYY, HH:ss')}) */}
+            </Text>
+          ) : null}
+        </View>
         {description ? (
           <Text
             variant="bodyMedium"
@@ -73,5 +80,11 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
     borderRadius: 100,
     aspectRatio: '1/1',
+  },
+  relativeTime: {
+    opacity: 0.7,
+    width: '30%',
+    textAlign: 'right',
+    paddingRight: 8,
   },
 })

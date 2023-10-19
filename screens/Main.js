@@ -28,7 +28,7 @@ const Tab = createMaterialBottomTabNavigator()
 const bottomBarItems = [
   {
     name: 'Calendar',
-    component: CalendarDetails,
+    component: Calendar,
     icons: ['calendar-outline', 'calendar-sharp'],
   },
   {

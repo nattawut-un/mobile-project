@@ -14,7 +14,6 @@ const Tab = createMaterialTopTabNavigator()
 // const subjectsCollection = getSubjectsCollection()
 
 export default function SubjectInfo({ navigation, route }) {
-  console.log('main :', route)
   const { subject } = route.params
 
   return (
