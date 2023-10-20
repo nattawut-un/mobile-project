@@ -29,22 +29,6 @@ import { getDoc, onSnapshot } from 'firebase/firestore'
 import { AddSubjectModal } from 'components/modal'
 import { addSubjectDocument } from 'services/firestore'
 
-const dummyData = [
-  {
-    id: 0,
-    title: 'Subject Page',
-    description: 'Press [+] button to add new subject.',
-    createDate: dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]'),
-  },
-  {
-    id: 1,
-    title: 'Test',
-    description:
-      'Eiusmod sit mollit elit occaecat ipsum commodo elit deserunt aliqua cupidatat proident minim incididunt adipisicing.',
-    createDate: dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]'),
-  },
-]
-
 export default function SubjectHome({ navigation }) {
   // FAB
   const [isExtended, setIsExtended] = useState(true)

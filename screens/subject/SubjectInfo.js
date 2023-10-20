@@ -1,6 +1,6 @@
 import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
-import { useState } from 'react'
-import { Text, Appbar, ActivityIndicator, MD3Colors, Chip } from 'react-native-paper'
+import { useEffect, useState } from 'react'
+import { Text, Appbar, ActivityIndicator, MD3Colors, Chip, Divider } from 'react-native-paper'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { MaterialIcons } from '@expo/vector-icons'
 // import { getSubjectsCollection } from 'services/firestore'
@@ -9,6 +9,10 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import ListCard from 'components/ListCard'
 import TestImage from 'assets/icon.png'
+import { getAssignmentsCollection } from 'services/firestore'
+import { onSnapshot } from 'firebase/firestore'
+import _ from 'lodash'
+import { ConfirmFinishAssignmentModal } from 'components/modal'
 
 const Tab = createMaterialTopTabNavigator()
 // const subjectsCollection = getSubjectsCollection()
@@ -92,29 +96,65 @@ function SubjectInfoTab({ navigation, route }) {
 function SubjectInfoHomework({ navigation, route }) {
   const { subject } = route.params
 
+  const user = useSelector(state => state.user.user)
+
+  const [assignments, setAssignments] = useState([])
+  const getAssignment = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const assignmentData = res.data()
+      data.push({ key: res.id, ...assignmentData })
+    })
+
+    const sortedData = _.sortBy(data, item => item.dueDate.seconds)
+    const filteredData = sortedData.filter(
+      item => item.subjectId == subject.key
+    )
+    console.log(filteredData)
+    setAssignments(filteredData)
+  }
+
+  const assignmentsQuery = getAssignmentsCollection(user.uid)
+  useEffect(() => {
+    const unsub = onSnapshot(assignmentsQuery, { next: getAssignment })
+    return () => unsub()
+  }, [])
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [assignmentId, setAssignmentId] = useState(null)
+
   return (
-    <ScrollView style={styles.container}>
-      <ListCard
-        title="Week 1"
-        icon={<MaterialIcons name="info" size={40} color="gray" />}
-      >
-        <Text variant="bodySmall">11 Oct, 2023</Text>
-        <Text variant="bodySmall">22:00:00</Text>
-        <Text variant="bodySmall">10p</Text>
-
-        <ChipFinished />
-      </ListCard>
-      <ListCard
-        title="Week 2"
-        icon={<MaterialIcons name="info" size={40} color="gray" />}
-      >
-        <Text variant="bodySmall">11 Oct, 2023</Text>
-        <Text variant="bodySmall">22:00:01</Text>
-        <Text variant="bodySmall">10p</Text>
-
-        <ChipUnfinished />
-      </ListCard>
-    </ScrollView>
+    <>
+      <ScrollView style={styles.container}>
+        {assignments
+          ? assignments.map(
+              ({ key, title, description, dueDate, points, finished }) => (
+                <ListCard
+                  key={key}
+                  title={title}
+                  icon={<MaterialIcons name="info" size={40} color="gray" />}
+                >
+                  <Text variant="bodySmall">11 Oct, 2023 - 22:00:01</Text>
+                  <Text variant="bodySmall">{points} points</Text>
+                  <Divider style={{ marginVertical: 8 }} />
+                  <Text variant="labelMedium">Description</Text>
+                  <Text style={{ marginBottom: 8 }}>{description}</Text>
+                  {finished ? <ChipFinished /> : <ChipUnfinished onPress={() => {
+                    setAssignmentId(key)
+                    setShowConfirmModal(true)
+                  }} />}
+                </ListCard>
+              )
+            )
+          : null}
+      </ScrollView>
+      <ConfirmFinishAssignmentModal
+        visible={showConfirmModal}
+        onCancel={() => setShowConfirmModal(false)}
+        onOK={() => setShowConfirmModal(false)}
+        assignmentId={assignmentId}
+      />
+    </>
   )
 }
 
@@ -124,8 +164,8 @@ const ChipFinished = () => (
   </Chip>
 )
 
-const ChipUnfinished = () => (
-  <Chip icon="close" onPress={() => console.log('Pressed')} style={styles.chip}>
+const ChipUnfinished = ({ onPress }) => (
+  <Chip icon="close" onPress={onPress} style={styles.chip}>
     Unfinished
   </Chip>
 )
