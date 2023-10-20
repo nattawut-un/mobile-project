@@ -47,14 +47,13 @@ function SubjectHomeHeader() {
       <Appbar.Action
         icon="bookmark-multiple"
         color={MD3Colors.primary90}
-        // onPress={_handleSearch}
       />
       <Appbar.Content title="Subjects" color="white" />
-      <Appbar.Action
+      {/* <Appbar.Action
         icon="dots-vertical"
         color={MD3Colors.primary90}
         // onPress={_handleMore}
-      />
+      /> */}
     </Appbar.Header>
   )
 }

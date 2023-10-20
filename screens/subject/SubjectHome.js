@@ -112,7 +112,7 @@ export default function SubjectHome({ navigation }) {
         </View>
         <FlatList
           style={{ marginBottom: 70 }}
-          data={subjects}
+          data={subjects.filter(item => item.title.toLowerCase().includes(searchQuery))}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() =>
@@ -125,7 +125,7 @@ export default function SubjectHome({ navigation }) {
                   marginHorizontal: 16,
                   marginVertical: 8,
                   backgroundColor: MD3Colors.primary95,
-                  shadowColor: '#0000'
+                  shadowColor: '#0000',
                 }}
               >
                 <Card.Content>
