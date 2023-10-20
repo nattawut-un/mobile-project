@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Timestamp, getDocs, onSnapshot } from 'firebase/firestore';
 import _ from 'lodash';
 
-import { addAssignmentDocument, addSubjectDocument, getAssignmentsCollection, saveAssignmentDocument } from 'services/firestore';
+import { addAssignmentDocument, addSubjectDocument, getAssignmentsCollection, getSubjectsCollection, getSubjectsCollectionData, saveAssignmentDocument } from 'services/firestore';
 
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
@@ -76,8 +76,24 @@ function Homepage({ navigation }) {
     setShowAssignmentDetails(true)
   }
 
+  const [subjects, setSubjects] = useState([])
+  const getSubject = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const fields = res.data()
+      data.push({ key: res.id, ...fields })
+    })
+    setSubjects(data)
+  }
+
+  const subjectsQuery = getSubjectsCollection(user ? user.uid : '')
+  useEffect(() => {
+    const unsub = onSnapshot(subjectsQuery, { next: getSubject })
+    return () => unsub()
+  }, [])
+
   return (
-    <PaperProvider>
+    <>
       <View style={styles.container}>
         <Clock />
         <View style={{ marginVertical: 8 }}>
@@ -115,13 +131,14 @@ function Homepage({ navigation }) {
         visible={showAddAssignmentModal}
         onCancel={() => setShowAddAssignmentModal(false)}
         onOK={addAssignment}
+        list={subjects}
       />
       <AssigmentDetailModal
         data={assignmentData}
         visible={showAssignmentDetails}
         onDismiss={() => setShowAssignmentDetails(false)}
       />
-    </PaperProvider>
+    </>
   )
 }
 

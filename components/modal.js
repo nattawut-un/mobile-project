@@ -6,9 +6,10 @@ import dayjs from "dayjs";
 import { Timestamp } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker'
 import DropDown from 'react-native-paper-dropdown'
+import { Picker } from '@react-native-picker/picker'
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { deleteAssignmentDocument, saveAssignmentDocument } from "services/firestore";
+import { deleteAssignmentDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
 
 /**
  * @param {object} props
@@ -48,7 +49,7 @@ export function LogoutModal({ visible, onCancel, onOK }) {
  * @param {() => void} props.onCancel
  * @param {() => void} props.onOK
  */
-export function AddAssignmentModal({ visible, onCancel, onOK }) {
+export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
   const [date, setDate] = useState(new Date())
   const [mode, setMode] = useState('date')
   const [show, setShow] = useState(false)
@@ -76,6 +77,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
       description,
       // dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
+      subjectId: selectedSubject,
     }
     onOK(document)
 
@@ -88,14 +90,13 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
     setDate(new Date())
   }
 
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [subject, setSubject] = useState("")
+  const [selectedSubject, setSelectedSubject] = useState("")
 
   return (
     <>
       <Portal>
         <Dialog visible={visible} onDismiss={onCancel}>
-          <Dialog.Title>Add assignment</Dialog.Title>
+          <Dialog.Title onPress={() => console.log({ title, description, date, selectedSubject })}>Add assignment</Dialog.Title>
           <Dialog.Content>
             <TextInput
               label="Title"
@@ -116,17 +117,21 @@ export function AddAssignmentModal({ visible, onCancel, onOK }) {
               value={description}
               onChangeText={setDescription}
             />
-            {/* <DropDown
-              label="Subject"
-              mode="outlined"
-              visible={showDropdown}
-              dropDownStyle={{ backgroundColor: '#eee8f4' }}
-              showDropdown={() => setShowDropdown(true)}
-              onDismiss={() => setShowDropdown(false)}
-              value={subject}
-              setValue={setSubject}
-              list={testList}
-            /> */}
+            <Text variant="labelMedium" style={{ marginTop: 8 }}>
+              Subject
+            </Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={selectedSubject}
+                onValueChange={setSelectedSubject}
+                mode="dialog"
+                style={{ color: 'white', fontWeight: 'bold' }}
+              >
+                {list.map(({ title, key }) => (
+                  <Picker.Item label={title} value={key} key={key} />
+                ))}
+              </Picker>
+            </View>
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
               Date & Time
             </Text>
@@ -301,6 +306,32 @@ export function AddSubjectModal(props) {
         </Dialog>
       </Portal>
     </>
+  )
+}
+
+export function DeleteSubjectMobal({ visible, onCancel, onOK }) {
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Icon icon="delete" size={48} />
+        <Dialog.Title>Do you want to delete this subject?</Dialog.Title>
+        <Dialog.Content>
+          {/* <Text variant="bodyMedium">Do you want to logout?</Text> */}
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={onCancel}>Cancel</Button>
+          <Button
+            onPress={onOK}
+            mode="contained"
+            buttonColor="red"
+            textColor="white"
+            rippleColor={'hsl(0, 50%, 80%)'}
+          >
+            Delete
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
   )
 }
 
@@ -652,6 +683,34 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
   )
 }
 
+export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignmentId }) {
+  const onConfirm = () => {
+    markAssignmentAsFinished(assignmentId)
+    onOK()
+  }
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Icon icon="check" size={48} />
+        <Dialog.Title>Mark as finished</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">
+            Do you want to mark this assignment as finished?
+          </Text>
+          <Text variant="bodyMedium">key: {assignmentId}</Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={onCancel}>Cancel</Button>
+          <Button onPress={onConfirm} mode="contained">
+            Mark as finished
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  )
+}
+
 const styles = StyleSheet.create({
   textInput: {
     backgroundColor: '#eee8f4',
@@ -662,7 +721,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     backgroundColor: 'white',
     width: 'calc(100% - 16px)',
-    padding: 16
+    padding: 16,
   },
   top: {
     borderTopLeftRadius: 16,
@@ -671,5 +730,11 @@ const styles = StyleSheet.create({
   bottom: {
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
-  }
+  },
+  picker: {
+    width: '100%',
+    backgroundColor: MD3Colors.primary40,
+    borderRadius: 50,
+    marginVertical: 4,
+  },
 })
