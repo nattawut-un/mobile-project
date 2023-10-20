@@ -9,7 +9,7 @@ import DropDown from 'react-native-paper-dropdown'
 import { Picker } from '@react-native-picker/picker'
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { deleteAssignmentDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
+import { deleteAssignmentDocument, deleteSubjectDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
 
 /**
  * @param {object} props
@@ -206,17 +206,22 @@ export function AddSubjectModal(props) {
   }
 
   const pressOK = async () => {
-    const splittedPath = file.uri.split('/')
-    const fileName = splittedPath[splittedPath.length - 1]
-    const extension = fileName.split('.')[1]
+    var data = { title, teacher, description }
 
-    const filePath = file.uri
-    const uploadPath = '/subjects/' + new Date().getTime() + '.' + extension
+    if (file) {
+      const splittedPath = file.uri.split('/')
+      const fileName = splittedPath[splittedPath.length - 1]
+      const extension = fileName.split('.')[1]
 
-    const imageUri = await uploadFileToStorage(filePath, uploadPath)
-    console.log(imageUri)
+      const filePath = file.uri
+      const uploadPath = '/subjects/' + new Date().getTime() + '.' + extension
 
-    const data = { title, teacher, description, image: imageUri }
+      const imageUri = await uploadFileToStorage(filePath, uploadPath)
+      console.log(imageUri)
+
+      data['image'] = imageUri
+    }
+
     onOK(data)
 
     clearInput()
@@ -309,19 +314,24 @@ export function AddSubjectModal(props) {
   )
 }
 
-export function DeleteSubjectMobal({ visible, onCancel, onOK }) {
+export function DeleteSubjectMobal({ visible, onCancel, onOK, subjectId }) {
+  const confirm = () => {
+    deleteSubjectDocument(subjectId)
+    onOK()
+  }
+
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={onCancel}>
         <Dialog.Icon icon="delete" size={48} />
         <Dialog.Title>Do you want to delete this subject?</Dialog.Title>
         <Dialog.Content>
-          {/* <Text variant="bodyMedium">Do you want to logout?</Text> */}
+          <Text variant="bodyMedium">key: {subjectId}</Text>
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onCancel}>Cancel</Button>
           <Button
-            onPress={onOK}
+            onPress={confirm}
             mode="contained"
             buttonColor="red"
             textColor="white"

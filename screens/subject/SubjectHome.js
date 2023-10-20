@@ -139,7 +139,7 @@ export default function SubjectHome({ navigation }) {
                   )}
                   <Text variant="titleLarge">{item.title}</Text>
                   <Text variant="bodyMedium">{item.description}</Text>
-                  <View
+                  {/* <View
                     style={{
                       flexDirection: 'row',
                       marginTop: 8,
@@ -148,7 +148,7 @@ export default function SubjectHome({ navigation }) {
                   >
                     <Chip style={{ marginRight: 8 }}>Next: Mon, 9:00</Chip>
                     <Chip style={{ marginRight: 8 }}>__ Homeworks</Chip>
-                  </View>
+                  </View> */}
                 </Card.Content>
               </Card>
             </TouchableOpacity>

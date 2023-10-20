@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons'
 
 import SubjectHome from './subject/SubjectHome'
 import SubjectInfo from './subject/SubjectInfo'
+import { DeleteSubjectMobal } from 'components/modal'
+import { useState } from 'react'
 
 const Stack = createNativeStackNavigator()
 
@@ -60,34 +62,49 @@ function SubjectHomeHeader() {
 function SubjectInfoHeader({ navigation, route }) {
   const { subject } = route.params
 
+  const [showDeleteSubjectModal, setShowDeleteSubjectModal] = useState(false)
+
+  const deleteSubject = () => {
+    navigation.navigate('SubjectHome')
+    setShowDeleteSubjectModal(false)
+  }
+
   return (
-    <Appbar.Header
-      mode="medium"
-      style={{
-        backgroundColor: MD3Colors.primary50,
-      }}
-    >
-      <Appbar.BackAction
-        color={MD3Colors.primary90}
-        onPress={() => navigation.goBack()}
+    <>
+      <Appbar.Header
+        mode="medium"
+        style={{
+          backgroundColor: MD3Colors.primary50,
+        }}
+      >
+        <Appbar.BackAction
+          color={MD3Colors.primary90}
+          onPress={() => navigation.goBack()}
+        />
+        <Appbar.Content title={subject.title} color="white" />
+        <Appbar.Action
+          icon="pencil"
+          color={MD3Colors.primary90}
+          onPress={() => console.log('Edit')}
+        />
+        <Appbar.Action
+          icon="delete"
+          color={MD3Colors.primary90}
+          onPress={() => setShowDeleteSubjectModal(true)}
+        />
+        <Appbar.Action
+          icon="dots-vertical"
+          color={MD3Colors.primary90}
+          onPress={() => console.log('More')}
+        />
+      </Appbar.Header>
+      <DeleteSubjectMobal
+        visible={showDeleteSubjectModal}
+        onCancel={() => setShowDeleteSubjectModal(false)}
+        onOK={deleteSubject}
+        subjectId={subject.key}
       />
-      <Appbar.Content title={subject.title} color="white" />
-      <Appbar.Action
-        icon="pencil"
-        color={MD3Colors.primary90}
-        onPress={() => console.log('Edit')}
-      />
-      <Appbar.Action
-        icon="delete"
-        color={MD3Colors.primary90}
-        onPress={() => console.log('Delete')}
-      />
-      <Appbar.Action
-        icon="dots-vertical"
-        color={MD3Colors.primary90}
-        onPress={() => console.log('More')}
-      />
-    </Appbar.Header>
+    </>
   )
 }
 
