@@ -1,18 +1,24 @@
 import { View, ScrollView, Text, StyleSheet } from 'react-native'
-import { List, MD3Colors, Appbar } from 'react-native-paper'
+import { List, MD3Colors, Appbar, PaperProvider } from 'react-native-paper'
+import { useSelector, useDispatch } from 'react-redux'
+import { useEffect, useState } from 'react'
+
+import { saveUser } from 'config/redux'
+import { LogoutModal } from 'components/modal'
+import { FIREBASE_AUTH } from 'config/firebase'
 
 export default function SettingsHome({ navigation } ) {
+  const user = useSelector(state => state.user.user)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+
+  const logOut = () => {
+    console.log('Logout')
+    navigation.navigate('Home')
+    FIREBASE_AUTH.signOut()
+  }
+
   return (
-    <View>
-      <Appbar.Header
-          mode="small"
-          style={{
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.BackAction color={MD3Colors.primary90} onPress={() => navigation.goBack()} />
-        <Appbar.Content title='Settings' color='white' />
-      </Appbar.Header>
+    <PaperProvider>
       <ScrollView>
         <List.Section>
           <List.Subheader>Some title</List.Subheader>
@@ -24,22 +30,56 @@ export default function SettingsHome({ navigation } ) {
           />
           <List.Item
             title="Second Item"
-            left={() => <List.Icon color={MD3Colors.primary50} icon="calendar" />}
+            left={() => (
+              <List.Icon color={MD3Colors.primary50} icon="calendar" />
+            )}
             onPress={e => navigation.navigate('SettingsA')}
             style={styles.listItem}
           />
         </List.Section>
         <List.Section>
-          <List.Subheader>About</List.Subheader>
+          <List.Subheader>User</List.Subheader>
           <List.Item
-            title="Version 0.0.1"
-            left={() => <List.Icon color='gray' icon="application-brackets-outline" />}
+            title="Your email"
+            description={user ? user.email : ''}
+            left={() => <List.Icon color="gray" icon="email" />}
+            onPress={e => console.log(user)}
+            style={styles.listItem}
+          />
+          <List.Item
+            title="Your UID"
+            description={user ? user.uid : ''}
+            left={() => <List.Icon color="gray" icon="account" />}
+            onPress={e => console.log(user)}
+            style={styles.listItem}
+          />
+          <List.Item
+            title="Logout"
+            titleStyle={{ color: 'red' }}
+            left={() => <List.Icon color="red" icon="logout" />}
+            onPress={e => setShowLogoutModal(true)}
+            style={styles.listItem}
+            rippleColor={'hsl(0, 50%, 80%)'}
+          />
+        </List.Section>
+        <List.Section title="App">
+          <List.Item
+            title="Version"
+            description="0.0.1"
+            left={() => (
+              <List.Icon color="gray" icon="application-brackets-outline" />
+            )}
             onPress={e => console.log('Version 0.0.1')}
             style={styles.listItem}
           />
         </List.Section>
       </ScrollView>
-    </View>
+      <LogoutModal
+        visible={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onOK={logOut}
+      />
+    </PaperProvider>
   )
 }
 

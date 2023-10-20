@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.nttw.mobileproject"
+      "package": "com.nttw.mobileproject",
+      "googleServicesFile": "/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,6 +31,9 @@
     "owner": "nttw",
     "experiments": {
       "tsconfigPaths": true
-    }
+    },
+    "plugins": [
+      "@react-native-firebase/app"
+    ]
   }
 }

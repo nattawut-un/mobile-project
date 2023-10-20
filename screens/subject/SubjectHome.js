@@ -1,6 +1,6 @@
-import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
+import { View, ScrollView, StyleSheet, SafeAreaView, Image, FlatList, TouchableOpacity } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   AnimatedFAB,
   Dialog,
@@ -15,13 +15,17 @@ import {
   Divider,
   PaperProvider,
   Searchbar,
-  MD3Colors
+  MD3Colors,
+  Chip
 } from 'react-native-paper'
 import { cloneDeep } from 'lodash'
 import dayjs from 'dayjs'
+import { useSelector, useDispatch } from 'react-redux'
 
 // import storage from 'data/storage'
-import TestImage from 'assets/icon.png'
+import TestImage from 'assets/placeholder.png'
+import { getSubjectsCollection } from 'services/firestore'
+import { onSnapshot } from 'firebase/firestore'
 
 const dummyData = [
   {
@@ -40,9 +44,10 @@ const dummyData = [
 ]
 
 export default function SubjectHome({ navigation }) {
+  
   // Subject List
-  const [subject, setSubject] = useState(dummyData)
-  const [nextId, setNextId] = useState(subject.length)
+  // const [subject, setSubject] = useState([])
+  // const [nextId, setNextId] = useState(subject.length)
 
   // FAB
   const [isExtended, setIsExtended] = useState(true)
@@ -118,106 +123,27 @@ export default function SubjectHome({ navigation }) {
     console.log('Deleted all subjects.')
   }
 
-  function SubjectList(props) {
-    let res = []
-    let data = props.items ?? []
-    data.forEach(item =>
-      res.push(
-        <Card
-          key={item.id}
-          style={{
-            marginHorizontal: 16,
-            marginVertical: 8,
-            borderColor: MD3Colors.primary80,
-            borderWidth: 2,
-          }}
-        >
-          {/* <Card.Title title={'id: ' + item.id} subtitle={item.createDate} /> */}
-          <Card.Content>
-            <Image source={TestImage} style={styles.cardImage} />
-            <Text variant="titleLarge">{item.title}</Text>
-            <Text variant="bodyMedium">{item.description}</Text>
-          </Card.Content>
-          <Card.Actions>
-            <Button onPress={() => deleteSubject(item.id)}>Delete</Button>
-            <Button
-              onPress={() =>
-                navigation.navigate('SubjectInfo', { subject: item })
-              }
-            >
-              Show
-            </Button>
-          </Card.Actions>
-        </Card>
-      )
-    )
-    return res
+  // Firestore
+  const [subjects, setSubjects] = useState([])
+  const getSubject = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const { title, description, ownerId, teacher, timetable, image } = res.data()
+      data.push({ key: res.id, title, description, ownerId, teacher, timetable, image })
+    })
+    setSubjects(data)
+    console.log('subjects:', data)
   }
 
-  // function loadSubjectData() {
-  //   storage.load({ key: 'subjects' }).then(res => {
-  //     console.log('load subjects:', res)
-  //     setSubject(res)
-  //   })
-  // }
-  // async function saveSubjectData() {
-  //   return await storage.save({ key: 'subjects', data: subject })
-  // }
-  // function readData() {
-  //   storage.load({ key: 'subjects' }).then(res => {
-  //     console.log('read subjects:', res)
-  //   })
-  // }
-
-  // useEffect(() => {
-  //   storage.load({ key: 'subjects' })
-  //   .then(ret => {
-  //     setSubject(ret)
-  //     console.log("load subjects:", ret)
-  //   })
-  //   .catch(err => {
-  //     console.log(err)
-  //   })
-  // }, [])
-
-  // useLayoutEffect(() => {
-  //   loadSubjectData()
-  // }, [])
-
-  // useEffect(() => {
-  //   saveSubjectData()
-  //   console.log('save subjects:', subject)
-  // }, [subject])
+  const user = useSelector(state => state.user.user)
+  const subjectsQuery = getSubjectsCollection(user ? user.uid : '')
+  useEffect(() => {
+    onSnapshot(subjectsQuery, { next: getSubject })
+  }, [])
 
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <Appbar.Header
-          mode="small"
-          style={{
-            // position: 'absolute',
-            // zIndex: 100,
-            // width: '100%',
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.Action
-            icon="bookmark-multiple"
-            color={MD3Colors.primary90}
-            onPress={_handleSearch}
-          />
-          <Appbar.Content title="Subjects" color="white" />
-          {/* <Appbar.Action
-            icon="magnify"
-            color={MD3Colors.primary90}
-            onPress={_handleSearch}
-          /> */}
-          <Appbar.Action
-            icon="dots-vertical"
-            color={MD3Colors.primary90}
-            onPress={_handleMore}
-          />
-        </Appbar.Header>
         <View
           style={{
             paddingVertical: 8,
@@ -239,7 +165,7 @@ export default function SubjectHome({ navigation }) {
           />
         </View>
         {/* <PaperProvider> */}
-        <Menu
+        {/* <Menu
           visible={visibleHeaderMenu}
           onDismiss={hideMenu}
           anchor={{ x: 600, y: 60 }}
@@ -258,14 +184,14 @@ export default function SubjectHome({ navigation }) {
             }}
             title="Delete all"
           />
-        </Menu>
+        </Menu> */}
         {/* </PaperProvider> */}
-        <ScrollView onScroll={onScroll}>
-          {/* <View style={{ marginVertical: 55 }} /> */}
-          {/* <Appbar.Header mode="large">
+        {/* <ScrollView onScroll={onScroll}> */}
+        {/* <View style={{ marginVertical: 55 }} /> */}
+        {/* <Appbar.Header mode="large">
             <Appbar.Content title="Subjects" />
           </Appbar.Header> */}
-          {/* <Button
+        {/* <Button
             mode="contained"
             icon="bookmark"
             buttonColor="purple"
@@ -274,15 +200,70 @@ export default function SubjectHome({ navigation }) {
           >
             Read Data
           </Button> */}
-          <SubjectList
-            items={
-              searchQuery
-                ? subject.filter(i => i.title.includes(searchQuery))
-                : subject
-            }
-          />
-          <View style={{ marginVertical: 108 }} />
-        </ScrollView>
+        <FlatList
+          data={subjects}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                // navigation.navigate('SubjectInfo', {
+                //   screen: 'SubjectInfoTab',
+                //   params: { subject: item },
+                // })
+                navigation.navigate('SubjectInfo', { subject: item })
+              }
+            >
+              <Card
+                key={item.key}
+                style={{
+                  marginHorizontal: 16,
+                  marginVertical: 8,
+                  backgroundColor: MD3Colors.primary95,
+                  shadowColor: '#0000'
+                }}
+              >
+                <Card.Content>
+                  {item.image ? (
+                    <Image src={item.image} style={styles.cardImage} />
+                  ) : (
+                    <Image
+                      source={TestImage}
+                      style={{ ...styles.cardImage, height: 70 }}
+                    />
+                  )}
+                  <Text variant="titleLarge">{item.title}</Text>
+                  <Text variant="bodyMedium">{item.description}</Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 8,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Chip style={{ marginRight: 8 }}>Next: Mon, 9:00</Chip>
+                    <Chip style={{ marginRight: 8 }}>__ Homeworks</Chip>
+                  </View>
+                </Card.Content>
+                <Card.Actions>
+                  {/* <Button onPress={() => deleteSubject(item.id)}>Delete</Button> */}
+                  {/* <Button
+                        mode="contained"
+                        onPress={() =>
+                          // navigation.navigate('SubjectInfo', {
+                          //   screen: 'SubjectInfoTab',
+                          //   params: { subject: item },
+                          // })
+                          navigation.navigate('SubjectInfo', { subject: item })
+                        }
+                      >
+                        Show
+                      </Button> */}
+                </Card.Actions>
+              </Card>
+            </TouchableOpacity>
+          )}
+        />
+        <View style={{ marginVertical: 128 }} />
+        {/* </ScrollView> */}
         <Portal>
           <Modal
             visible={visibleModalAddSubject}
@@ -334,7 +315,7 @@ export default function SubjectHome({ navigation }) {
         onPress={showModal}
         style={[styles.fabStyle, { animateFrom: 16 }]}
       />
-      <Snackbar
+      {/* <Snackbar
         visible={visibleSnackbar}
         onDismiss={onDismissSnackBar}
         action={{
@@ -345,7 +326,7 @@ export default function SubjectHome({ navigation }) {
         }}
       >
         Subject is deleted.
-      </Snackbar>
+      </Snackbar> */}
     </>
   )
 }
@@ -368,7 +349,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: '100%',
-    height: 200,
+    height: 150,
     objectFit: 'cover',
     borderRadius: 8,
     marginBottom: 12,

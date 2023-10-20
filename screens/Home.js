@@ -1,26 +1,166 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { Portal, PaperProvider, Text, Appbar, MD3Colors } from 'react-native-paper';
+import { StyleSheet, ScrollView, View, FlatList } from 'react-native';
+import { Portal, PaperProvider, Text, Appbar, MD3Colors, FAB } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import UTC from 'dayjs/plugin/utc';
+import { useSelector, useDispatch } from 'react-redux'
+import { Timestamp, getDocs, onSnapshot } from 'firebase/firestore';
+import _ from 'lodash';
 
-import HomeFAB from 'components/HomeFAB';
+import { getAssignmentsCollection, saveAssignmentDocument } from 'services/firestore';
+
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
+import { AddAssignmentModal, AddSubjectModal, AddTimetableModal, AssigmentDetailModal } from 'components/modal';
 
 const Stack = createNativeStackNavigator()
 
 function Homepage({ navigation }) {
+  const user = useSelector(state => state.user.user)
+
   dayjs.extend(UTC)
 
+  const [assignments, setAssignments] = useState([])
+  const getAssignment = querySnapshot => {
+    const data = []
+    querySnapshot.forEach(res => {
+      const assignmentData = res.data()
+      data.push({ key: res.id, ...assignmentData })
+    })
+
+    const now = new Date()
+    const unfinishedData = data.filter(
+      item => now < new Timestamp(item.dueDate.seconds, item.dueDate.nanoseconds).toDate()
+    )
+    const sortedData = _.sortBy(unfinishedData, item => item.dueDate.seconds)
+    setAssignments(sortedData)
+    console.log('Assignment fetched.')
+  }
+
+  const assignmentsQuery = getAssignmentsCollection(user.uid)
+  useEffect(() => {
+    onSnapshot(assignmentsQuery, { next: getAssignment })
+  }, [])
+
+  // const user = useSelector(state => state.user.user)
+  // useEffect(
+  //   () =>
+  //     user ? appointmentsCollection
+  //       .where('ownerUID', '==', user.uid)
+  //       .onSnapshot(getAppointment) : null,
+  //   []
+  // )
+
+  const [showAddSubjectModal, setShowAddSubjectModal] = useState(false)
+
+  const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
+
+  const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false)
+  const addAssignment = assignment => {
+    if (!user) return
+
+    assignment['ownerUID'] = user.uid
+    console.log('Adding assignment: ' + JSON.stringify(assignment))
+    saveAssignmentDocument(assignment)
+
+    setShowAddAssignmentModal(false)
+  }
+
+  const [showAssignmentDetails, setShowAssignmentDetails] = useState(false)
+  const [assignmentData, setAssignmentData] = useState({})
+  const showModal = data => {
+    setAssignmentData(data)
+    setShowAssignmentDetails(true)
+  }
+
+  return (
+    <PaperProvider>
+      <View style={styles.container}>
+        <Clock />
+        <View style={{ marginVertical: 8 }}>
+          <FlatList
+            data={assignments}
+            renderItem={({ item }) => (
+              <ListCard
+                key={item}
+                title={item.title}
+                description={item.description}
+                date={item.dueDate.seconds ?? null}
+                image={TestImage}
+                onPress={() => showModal(item)}
+              />
+            )}
+          />
+        </View>
+      </View>
+      <HomeFAB
+        assignmentFunction={setShowAddAssignmentModal}
+        timetableFunction={setShowAddTimetableModal}
+        subjectFunction={setShowAddSubjectModal}
+      />
+      <AddSubjectModal
+        visible={showAddSubjectModal}
+        onCancel={() => setShowAddSubjectModal(false)}
+        // onOK={addSubject}
+      />
+      <AddTimetableModal
+        visible={showAddTimetableModal}
+        onCancel={() => setShowAddTimetableModal(false)}
+        // onOK={addSubject}
+      />
+      <AddAssignmentModal
+        visible={showAddAssignmentModal}
+        onCancel={() => setShowAddAssignmentModal(false)}
+        onOK={addAssignment}
+      />
+      <AssigmentDetailModal
+        data={assignmentData}
+        visible={showAssignmentDetails}
+        onDismiss={() => setShowAssignmentDetails(false)}
+      />
+    </PaperProvider>
+  )
+}
+
+export default function Home({ navigation }) {
+  return (
+    <Stack.Navigator initialRouteName='Homepage' screenOptions={{
+      header: HomeHeader
+    }}>
+      <Stack.Screen name='Homepage' component={Homepage} />
+      <Stack.Screen name='Settings' component={Settings} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  )
+}
+
+function HomeHeader({ navigation }) {
+  const toSettings = () => navigation.navigate('Settings')
+
+  return (
+    <Appbar.Header
+      mode="small"
+      style={{
+        backgroundColor: MD3Colors.primary50,
+      }}
+    >
+      <Appbar.Action icon="home" color={MD3Colors.primary90} />
+      <Appbar.Content title="Home" color="white" />
+      <Appbar.Action
+        icon="cog"
+        color={MD3Colors.primary90}
+        onPress={toSettings}
+      />
+    </Appbar.Header>
+  )
+}
+
+function Clock() {
   const [date, setDate] = useState(dayjs())
   const clockInterval = () => {
     setDate(dayjs())
   }
-
-  const toSettings = () => navigation.navigate("Settings")
 
   useEffect(() => {
     const interval = setInterval(clockInterval, 1000)
@@ -28,71 +168,52 @@ function Homepage({ navigation }) {
   }, [])
 
   return (
-    <PaperProvider>
-      <Portal>
-        <Appbar.Header
-          mode="small"
-          style={{
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.Action icon="home" color={MD3Colors.primary90} />
-          <Appbar.Content title="Home" color="white" />
-          <Appbar.Action
-            icon="login-variant"
-            color={MD3Colors.primary90}
-            onPress={() => console.log('Login')}
-          />
-          <Appbar.Action
-            icon="cog"
-            color={MD3Colors.primary90}
-            onPress={() => toSettings()}
-          />
-          <Appbar.Action
-            icon="dots-vertical"
-            color={MD3Colors.primary90}
-            onPress={() => console.log('More')}
-          />
-        </Appbar.Header>
-        <ScrollView style={styles.container}>
-          <View style={styles.timeElement}>
-            <Text variant="displayLarge" style={styles.time}>
-              {date.format('H:mm:ss')}
-            </Text>
-            <Text variant="titleLarge" style={styles.time}>
-              {date.format('dddd, MMMM D, YYYY')}
-            </Text>
-            {/* <Text style={styles.text}>เทส</Text> */}
-          </View>
-          <View style={{ marginVertical: 8 }}>
-            {[...Array(10).keys()].map((n, i) => (
-              <ListCard
-                key={i}
-                title={'Title ' + n}
-                description={
-                  'Nisi ea est veniam adipisicing aliqua est aliqua dolore laboris. ' +
-                  n
-                }
-                image={TestImage}
-              />
-            ))}
-          </View>
-          {/* <View></View> */}
-        </ScrollView>
-        <HomeFAB />
-      </Portal>
-    </PaperProvider>
+    <View style={styles.timeElement}>
+      <Text variant="displayLarge" style={styles.time}>
+        {date.format('H:mm:ss')}
+      </Text>
+      <Text variant="titleLarge" style={styles.time}>
+        {date.format('dddd, MMMM D, YYYY')}
+      </Text>
+    </View>
   )
 }
 
-export default function Home() {
+export function HomeFAB(props) {
+  const [open, setOpen] = useState(false)
+  const onStateChange = () => setOpen(!open)
+
+  const { assignmentFunction, timetableFunction, subjectFunction } = props
+
   return (
-    <Stack.Navigator initialRouteName='Home' screenOptions={{
-      headerShown: false,
-    }}>
-      <Stack.Screen name='Home' component={Homepage} />
-      <Stack.Screen name='Settings' component={Settings} />
-    </Stack.Navigator>
+    <FAB.Group
+      open={open}
+      visible
+      icon={open ? 'arrow-down' : 'plus'}
+      actions={[
+        {
+          icon: 'bookmark',
+          label: 'Subject',
+          onPress: () => subjectFunction(true),
+        },
+        {
+          icon: 'table',
+          label: 'Timetable',
+          onPress: () => timetableFunction(true),
+        },
+        {
+          icon: 'book',
+          label: 'Assignment',
+          onPress: () => assignmentFunction(true),
+        },
+      ]}
+      onStateChange={onStateChange}
+      onPress={() => {
+        if (open) {
+          // do something if the speed dial is open
+        }
+      }}
+    />
   )
 }
 
@@ -110,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   time: {
-    fontWeight: '500',
+    fontWeight: '700',
   },
   text: {
     fontFamily: 'font-thai',
