@@ -56,35 +56,43 @@ function SubjectInfoTab({ navigation, route }) {
   return (
     <ScrollView style={styles.container}>
       {subject.image ? (
-        <Image src={subject.image} style={{
-          height: 200,
-          borderWidth: 2,
-          borderColor: '#eee',
-          borderRadius: 15,
-          marginBottom: 4
-        }} />
+        <Image
+          src={subject.image}
+          style={{
+            height: 200,
+            borderWidth: 2,
+            borderColor: '#eee',
+            borderRadius: 15,
+            marginBottom: 4,
+          }}
+        />
       ) : null}
       <ListCard title="Teacher" description="Lorem Ipsum" image={TestImage} />
       <ListCard
         title="Description"
         description={subject.description}
-        icon={<MaterialIcons name="info" size={40} color={MD3Colors.primary50} />}
+        icon={
+          <MaterialIcons name="info" size={40} color={MD3Colors.primary50} />
+        }
       />
       <ListCard
         title="Timetable"
-        icon={<MaterialIcons name="today" size={40} color={MD3Colors.primary50} />}
+        icon={
+          <MaterialIcons name="today" size={40} color={MD3Colors.primary50} />
+        }
       >
-        {subject.timetable ? subject.timetable.map((item, index) => (
-          <Chip
-            key={index}
-            icon="information"
-            onPress={() => console.log('Pressed')}
-            style={styles.chip}
-          >
-            {DAYS[item.day].short}, {(item.h + '').padStart(2, '0')}:
-            {(item.m + '').padStart(2, '0')}
-          </Chip>
-        )) : (
+        {subject.timetable ? (
+          subject.timetable.map((item, index) => (
+            <Chip
+              key={index}
+              icon="information"
+              onPress={() => console.log('Pressed')}
+              style={styles.chip}
+            >
+              {DAYS[item.day].short}, {item.h}:{item.m}-{item.hEnd}:{item.mEnd}
+            </Chip>
+          ))
+        ) : (
           <Text style={{ fontStyle: 'italic' }}>None</Text>
         )}
       </ListCard>
