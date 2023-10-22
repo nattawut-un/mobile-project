@@ -6,8 +6,6 @@ import {
 } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 
-import RewardHome from './reward/RewardHome'
-
 const Stack = createNativeStackNavigator()
 
 export default function Reward() {

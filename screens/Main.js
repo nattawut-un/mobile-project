@@ -16,9 +16,7 @@ import Login from './Login'
 import Home from './Home'
 import Calendar from './Calendar'
 import Subject from './Subject'
-import Agenda from './Agenda'
 import Reward from './Reward'
-import AdminItems from './AdminPage/Items'
 import Timetable from './Timetable'
 
 const Tab = createMaterialBottomTabNavigator()
