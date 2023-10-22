@@ -338,7 +338,7 @@ export function AddTimetableModal(props) {
   const { visible, onCancel, onOK, subjectList, timetableList } = props
 
   const [subject, setSubject] = useState()
-  const [selectedDay, setSelectedDay] = useState(0)
+  const [selectedDay, setSelectedDay] = useState(1)
   const [startHour, setStartHour] = useState('00')
   const [startMin, setStartMin] = useState('00')
   const [endHour, setEndHour] = useState('00')
@@ -416,13 +416,13 @@ export function AddTimetableModal(props) {
               selectedValue={selectedDay}
               onValueChange={setSelectedDay}
             >
-              <Picker.Item label="Sunday" value={0} />
               <Picker.Item label="Monday" value={1} />
               <Picker.Item label="Tuesday" value={2} />
               <Picker.Item label="Wednesday" value={3} />
               <Picker.Item label="Thursday" value={4} />
               <Picker.Item label="Friday" value={5} />
               <Picker.Item label="Saturday" value={6} />
+              <Picker.Item label="Sunday" value={7} />
             </Picker>
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
               Start Time
