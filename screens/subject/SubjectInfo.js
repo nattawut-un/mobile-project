@@ -122,7 +122,7 @@ function SubjectInfoHomework({ navigation, route }) {
     setAssignments(filteredData)
   }
 
-  const assignmentsQuery = getAssignmentsCollection(user.uid)
+  const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
   useEffect(() => {
     const unsub = onSnapshot(assignmentsQuery, { next: getAssignment })
     return () => unsub()

@@ -18,6 +18,7 @@ import Calendar from './Calendar'
 import Subject from './Subject'
 import Reward from './Reward'
 import Timetable from './Timetable'
+import { checkAdmin } from 'services/firestore'
 
 const Tab = createMaterialBottomTabNavigator()
 

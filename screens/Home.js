@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Timestamp, getDocs, onSnapshot } from 'firebase/firestore';
 import _ from 'lodash';
 
-import { addAssignmentDocument, addSubjectDocument, getAssignmentsCollection, getSubjectsCollection, getSubjectsCollectionData, saveAssignmentDocument } from 'services/firestore';
+import { addAssignmentDocument, addSubjectDocument, checkAdmin, getAssignmentsCollection, getSubjectsCollection, getSubjectsCollectionData, saveAssignmentDocument } from 'services/firestore';
 
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
@@ -39,7 +39,7 @@ function Homepage({ navigation }) {
     console.log('Assignment fetched.')
   }
 
-  const assignmentsQuery = getAssignmentsCollection(user.uid)
+  const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
   useEffect(() => {
     const unsub = onSnapshot(assignmentsQuery, { next: getAssignment })
     return () => unsub()

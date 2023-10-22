@@ -18,12 +18,12 @@ export default function SettingsHome({ navigation } ) {
   }
 
   return (
-    <PaperProvider>
+    <>
       <ScrollView>
         <List.Section>
           <List.Subheader>Some title</List.Subheader>
           <List.Item
-            title="First Item"
+            title="Admin"
             left={() => <List.Icon color={MD3Colors.primary50} icon="folder" />}
             onPress={e => navigation.navigate('SettingsA')}
             style={styles.listItem}
@@ -79,7 +79,7 @@ export default function SettingsHome({ navigation } ) {
         onCancel={() => setShowLogoutModal(false)}
         onOK={logOut}
       />
-    </PaperProvider>
+    </>
   )
 }
 
