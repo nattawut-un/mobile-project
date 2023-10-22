@@ -36,7 +36,8 @@ export default function CalendarPage({ navigation, route }) {
 
   const assignmentsQuery = getAssignmentsCollection(user ? user.uid : '')
   useEffect(() => {
-    onSnapshot(assignmentsQuery, { next: getAssignment })
+    const unsub = onSnapshot(assignmentsQuery, { next: getAssignment })
+    return () => unsub()
   }, [])
 
   const today = dayjs().format('YYYY-MM-DD')

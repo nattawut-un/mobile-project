@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Icon } from 'react-native-vector-icons/Ionicons'
 import { useState, useEffect } from 'react'
 import { MD3Colors, Provider, PaperProvider, ActivityIndicator, Text } from 'react-native-paper'
@@ -19,6 +19,7 @@ import Subject from './Subject'
 import Agenda from './Agenda'
 import Reward from './Reward'
 import AdminItems from './AdminPage/Items'
+import Timetable from './Timetable'
 
 const Tab = createMaterialBottomTabNavigator()
 
@@ -30,7 +31,7 @@ const bottomBarItems = [
   },
   {
     name: 'Timetable',
-    component: IDK,
+    component: Timetable,
     icons: ['list', 'list'],
   },
   {
@@ -133,21 +134,6 @@ export default function Main() {
       <Login />
       <StatusBar style="dark" />
     </>
-  )
-}
-
-function IDK() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text variant="displayLarge">WIP</Text>
-    </View>
   )
 }
 
