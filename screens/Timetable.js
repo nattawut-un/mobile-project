@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux'
 import { getSubjectsCollection } from 'services/firestore'
 import { onSnapshot } from 'firebase/firestore'
 import { useEffect } from 'react'
-import { AddTimetableModal } from 'components/modal'
+import { AddTimetableModal, DeleteTimetableModel } from 'components/modal'
 
 const Stack = createNativeStackNavigator()
 
@@ -52,7 +52,7 @@ function TimetablePage() {
         item.timetable.forEach(table => {
           list.push({
             courseId: item.title,
-            title: item.title,
+            title: item.key,
             day: table.day,
             startTime: `${table.h}:${table.m}`,
             endTime: `${table.hEnd}:${table.mEnd}`,
@@ -66,13 +66,23 @@ function TimetablePage() {
 
   const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
 
+  const [showDeleteTimetableModal, setShowDeleteTimetableModal] = useState(false)
+  const [selectedTimetable, setSelectedTimetable] = useState(null)
+
   return (
     <>
       <TimeTable
         events={timetableList}
         eventOnPress={event => {
-          Alert.alert(`${JSON.stringify(event)}`)
           console.log(event)
+          const data = {
+            key: event.title,
+            day: event.day,
+            startTime: event.startTime,
+            endTime: event.endTime
+          }
+          setSelectedTimetable(data)
+          setShowDeleteTimetableModal(true)
         }}
         headerStyle={{
           backgroundColor: MD3Colors.primary30,
@@ -95,6 +105,12 @@ function TimetablePage() {
         onOK={() => setShowAddTimetableModal(false)}
         subjectList={subjects}
         timetableList={timetableList}
+      />
+      <DeleteTimetableModel
+        visible={showDeleteTimetableModal}
+        onCancel={() => setShowDeleteTimetableModal(false)}
+        onOK={() => setShowDeleteTimetableModal(false)}
+        data={selectedTimetable}
       />
     </>
   )

@@ -9,7 +9,8 @@ import DropDown from 'react-native-paper-dropdown'
 import { Picker } from '@react-native-picker/picker'
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { addTimetable, deleteAssignmentDocument, deleteSubjectDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
+import { addTimetable, deleteAssignmentDocument, deleteSubjectDocument, deleteTimetable, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
+import { DAYS } from "constants";
 
 export function LogoutModal({ visible, onCancel, onOK }) {
   return (
@@ -488,6 +489,40 @@ export function AddTimetableModal(props) {
         </Dialog>
       </Portal>
     </>
+  )
+}
+
+export function DeleteTimetableModel({ visible, onCancel, onOK, data }) {
+  const confirm = () => {
+    console.log(data)
+    deleteTimetable(data.key, data)
+    onOK()
+  }
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Icon icon="delete" size={48} />
+        <Dialog.Title>Do you want to delete this timetable?</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">Day: {DAYS[data.day].long}</Text>
+          <Text variant="bodyMedium">Start time: {data.startTime}</Text>
+          <Text variant="bodyMedium">End time: {data.endTime}</Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={onCancel}>Cancel</Button>
+          <Button
+            onPress={confirm}
+            mode="contained"
+            buttonColor="red"
+            textColor="white"
+            rippleColor={'hsl(0, 50%, 80%)'}
+          >
+            Delete
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
   )
 }
 
