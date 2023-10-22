@@ -3,11 +3,12 @@ import { useState } from 'react'
 import { Timeline, CalendarList, LocaleConfig } from 'react-native-calendars'
 import TimeTable from '@mikezzb/react-native-timetable'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { Appbar, MD3Colors } from 'react-native-paper'
+import { AnimatedFAB, Appbar, MD3Colors } from 'react-native-paper'
 import { useSelector } from 'react-redux'
 import { getSubjectsCollection } from 'services/firestore'
 import { onSnapshot } from 'firebase/firestore'
 import { useEffect } from 'react'
+import { AddTimetableModal } from 'components/modal'
 
 const Stack = createNativeStackNavigator()
 
@@ -63,17 +64,39 @@ function TimetablePage() {
     setTimetableList(list)
   }, [subjects])
 
+  const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
+
   return (
-    <TimeTable
-      events={timetableList}
-      eventOnPress={event => {
-        Alert.alert(`${JSON.stringify(event)}`)
-        console.log(event)
-      }}
-      headerStyle={{
-        backgroundColor: MD3Colors.primary30,
-      }}
-    />
+    <>
+      <TimeTable
+        events={timetableList}
+        eventOnPress={event => {
+          Alert.alert(`${JSON.stringify(event)}`)
+          console.log(event)
+        }}
+        headerStyle={{
+          backgroundColor: MD3Colors.primary30,
+        }}
+        configs={{
+          startHour: 0,
+          endHour: 24,
+        }}
+      />
+      <AnimatedFAB
+        icon="plus"
+        label="Add"
+        extended={true}
+        onPress={() => setShowAddTimetableModal(true)}
+        style={[styles.fabStyle, { animateFrom: 16 }]}
+      />
+      <AddTimetableModal
+        visible={showAddTimetableModal}
+        onCancel={() => setShowAddTimetableModal(false)}
+        onOK={() => setShowAddTimetableModal(false)}
+        subjectList={subjects}
+        timetableList={timetableList}
+      />
+    </>
   )
 }
 
@@ -100,5 +123,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  fabStyle: {
+    bottom: 16,
+    right: 16,
+    position: 'absolute',
   },
 })

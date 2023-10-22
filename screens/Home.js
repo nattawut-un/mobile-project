@@ -122,11 +122,12 @@ function Homepage({ navigation }) {
         onCancel={() => setShowAddSubjectModal(false)}
         onOK={addSubject}
       />
-      <AddTimetableModal
+      {/* <AddTimetableModal
         visible={showAddTimetableModal}
         onCancel={() => setShowAddTimetableModal(false)}
-        // onOK={addSubject}
-      />
+        onOK={() => setShowAddTimetableModal(false)}
+        list={subjects}
+      /> */}
       <AddAssignmentModal
         visible={showAddAssignmentModal}
         onCancel={() => setShowAddAssignmentModal(false)}
@@ -214,11 +215,11 @@ export function HomeFAB(props) {
           label: 'Subject',
           onPress: () => subjectFunction(true),
         },
-        {
-          icon: 'table',
-          label: 'Timetable',
-          onPress: () => timetableFunction(true),
-        },
+        // {
+        //   icon: 'table',
+        //   label: 'Timetable',
+        //   onPress: () => timetableFunction(true),
+        // },
         {
           icon: 'book',
           label: 'Assignment',

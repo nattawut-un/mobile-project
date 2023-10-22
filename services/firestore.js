@@ -1,6 +1,6 @@
 import { FIRESTORE_DB } from "config/firebase";
 import {
-  addDoc, collection, deleteDoc, doc, getDoc,
+  addDoc, arrayUnion, collection, deleteDoc, doc, getDoc,
   getDocs, onSnapshot, orderBy, query, setDoc, updateDoc, where,
 } from "firebase/firestore";
 
@@ -51,6 +51,15 @@ export const addSubjectDocument = data => {
 
 export const deleteSubjectDocument = docId => {
   deleteDoc(doc(FIRESTORE_DB, 'subject', docId))
+}
+
+export const addTimetable = (subjectId, day, startTime, endTime) => {
+  const [h, m] = startTime.split(':')
+  const [hEnd, mEnd] = endTime.split(':')
+
+  updateDoc(doc(FIRESTORE_DB, 'subject', subjectId), {
+    timetable: arrayUnion({ day, h, m, hEnd, mEnd })
+  })
 }
 
 // const col = collection(FIRESTORE_DB, 'assignment')

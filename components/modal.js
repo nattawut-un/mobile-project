@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Alert, Image, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
-import { Text, Dialog, Button, Portal, PaperProvider, TextInput, MD3Colors, HelperText, Modal } from "react-native-paper";
+import { Text, Dialog, Button, Portal, PaperProvider, TextInput, MD3Colors, HelperText, Modal, Chip, Divider } from "react-native-paper";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from "dayjs";
 import { Timestamp } from "firebase/firestore";
@@ -9,14 +9,8 @@ import DropDown from 'react-native-paper-dropdown'
 import { Picker } from '@react-native-picker/picker'
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { deleteAssignmentDocument, deleteSubjectDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
+import { addTimetable, deleteAssignmentDocument, deleteSubjectDocument, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
 
-/**
- * @param {object} props
- * @param {boolean} props.visible
- * @param {() => void} props.onCancel
- * @param {() => void} props.onOK
- */
 export function LogoutModal({ visible, onCancel, onOK }) {
   return (
     <Portal>
@@ -43,12 +37,6 @@ export function LogoutModal({ visible, onCancel, onOK }) {
   )
 }
 
-/**
- * @param {object} props
- * @param {boolean} props.visible
- * @param {() => void} props.onCancel
- * @param {() => void} props.onOK
- */
 export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
   const [date, setDate] = useState(new Date())
   const [mode, setMode] = useState('date')
@@ -78,6 +66,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
       // dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
       subjectId: selectedSubject,
+      finished: false
     }
     onOK(document)
 
@@ -346,21 +335,14 @@ export function DeleteSubjectMobal({ visible, onCancel, onOK, subjectId }) {
 }
 
 export function AddTimetableModal(props) {
-  const { visible, onCancel, onOK } = props
+  const { visible, onCancel, onOK, subjectList, timetableList } = props
 
-  const [date, setDate] = useState(new Date())
-  const [mode, setMode] = useState('date')
-  const [show, setShow] = useState(false)
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate
-    setShow(false)
-    setDate(currentDate)
-  }
-
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-
-  const isTextBlank = () => title.length <= 0
+  const [subject, setSubject] = useState()
+  const [selectedDay, setSelectedDay] = useState(0)
+  const [startHour, setStartHour] = useState('00')
+  const [startMin, setStartMin] = useState('00')
+  const [endHour, setEndHour] = useState('00')
+  const [endMin, setEndMin] = useState('00')
 
   const pressCancel = () => {
     clearInput()
@@ -368,22 +350,42 @@ export function AddTimetableModal(props) {
   }
 
   const pressOK = () => {
-    if (isTextBlank()) return
+    const startTime = `${startHour == '0' ? '00' : startHour}:${startMin == '0' ? '00' : startMin}`
+    const endTime = `${endHour == '0' ? '00' : endHour}:${endMin == '0' ? '00' : endMin}`
 
-    var document = {
-      title,
-      description,
-      dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
+    if (startTime >= endTime) {
+      return Alert.alert('Error', 'End time must be after start time.')
     }
-    onOK(document)
+
+    for (i=0; i<timetableList.length; i++) {
+      if (
+        areTimeDurationsOverlapping(
+          startTime,
+          endTime,
+          timetableList[i].startTime,
+          timetableList[i].endTime
+        ) && timetableList[i].day == selectedDay
+      ) {
+        console.log(timetableList[i])
+        return Alert.alert(
+          'Error',
+          'Time is overlapped with other timetable.\nPlease select the other time.'
+        )
+      }
+    }
+
+    console.log(subject, selectedDay, startTime, endTime)
+    addTimetable(subject, selectedDay, startTime, endTime)
 
     clearInput()
+    onOK()
   }
 
   const clearInput = () => {
-    setTitle('')
-    setDescription('')
-    setDate(new Date())
+    setStartHour('0')
+    setEndHour('0')
+    setStartMin('0')
+    setEndMin('0')
   }
 
   return (
@@ -392,61 +394,89 @@ export function AddTimetableModal(props) {
         <Dialog visible={visible} onDismiss={onCancel}>
           <Dialog.Title>Add Timetable</Dialog.Title>
           <Dialog.Content>
-            <TextInput
-              label="Title"
-              mode="outlined"
-              style={styles.textInput}
-              value={title}
-              onChangeText={setTitle}
-            />
-            {/* <HelperText type='error' visible={isTextBlank()}>
-              Title cannot be blank
-            </HelperText> */}
-            <TextInput
-              label="Description"
-              mode="outlined"
-              style={{ ...styles.textInput, height: null }}
-              multiline={true}
-              numberOfLines={3}
-              value={description}
-              onChangeText={setDescription}
-            />
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
-              Date & Time
+              Subject
+            </Text>
+            <Picker
+              mode="dropdown"
+              selectedValue={subject}
+              onValueChange={setSubject}
+            >
+              {subjectList
+                ? subjectList.map(({ key, title }) => (
+                    <Picker.Item key={key} label={title} value={key} />
+                  ))
+                : null}
+            </Picker>
+            <Text variant="labelMedium" style={{ marginTop: 8 }}>
+              Day
+            </Text>
+            <Picker
+              mode="dropdown"
+              selectedValue={selectedDay}
+              onValueChange={setSelectedDay}
+            >
+              <Picker.Item label="Sunday" value={0} />
+              <Picker.Item label="Monday" value={1} />
+              <Picker.Item label="Tuesday" value={2} />
+              <Picker.Item label="Wednesday" value={3} />
+              <Picker.Item label="Thursday" value={4} />
+              <Picker.Item label="Friday" value={5} />
+              <Picker.Item label="Saturday" value={6} />
+            </Picker>
+            <Text variant="labelMedium" style={{ marginTop: 8 }}>
+              Start Time
+            </Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Picker
+                style={{ width: '50%' }}
+                selectedValue={startHour}
+                onValueChange={setStartHour}
+                mode="dropdown"
+              >
+                {Array.from({ length: 24 }, (_, index) => {
+                  const label = index < 10 ? `0${index}` : `${index}`
+                  return <Picker.Item key={label} label={label} value={label} />
+                })}
+              </Picker>
+              <Picker
+                style={{ width: '50%' }}
+                selectedValue={startMin}
+                onValueChange={setStartMin}
+                mode="dropdown"
+              >
+                {Array.from({ length: 60 }, (_, index) => {
+                  const label = index < 10 ? `0${index}` : `${index}`
+                  return <Picker.Item key={label} label={label} value={label} />
+                })}
+              </Picker>
+            </View>
+            <Text variant="labelMedium" style={{ marginTop: 8 }}>
+              End Time
             </Text>
             <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-              <Button
-                style={{
-                  marginVertical: 4,
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                  width: '65%',
-                }}
-                icon="calendar"
-                mode="contained"
-                onPress={() => {
-                  setMode('date')
-                  setShow(true)
-                }}
+              <Picker
+                style={{ width: '50%' }}
+                selectedValue={endHour}
+                onValueChange={setEndHour}
+                mode="dropdown"
               >
-                {dayjs(date).format('ddd, DD MMM, YYYY')}
-              </Button>
-              <Button
-                style={{
-                  marginVertical: 4,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  width: '35%',
-                }}
-                icon="clock"
-                mode="contained"
-                onPress={() => {
-                  setMode('time')
-                  setShow(true)
-                }}
+                {Array.from({ length: 24 }, (_, index) => {
+                  const label = index < 10 ? `0${index}` : `${index}`
+                  return <Picker.Item key={label} label={label} value={label} />
+                })}
+              </Picker>
+              <Picker
+                style={{ width: '50%' }}
+                selectedValue={endMin}
+                onValueChange={setEndMin}
+                mode="dropdown"
               >
-                {dayjs(date).format('HH:mm')}
-              </Button>
+                {Array.from({ length: 60 }, (_, index) => {
+                  const label = index < 10 ? `0${index}` : `${index}`
+                  return <Picker.Item key={label} label={label} value={label} />
+                })}
+              </Picker>
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -457,30 +487,15 @@ export function AddTimetableModal(props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-      {show ? (
-        <DateTimePicker
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          onChange={onDateChange}
-        />
-      ) : null}
     </>
   )
 }
 
-/**
- * @param {object} props
- * @param {boolean} props.visible
- * @param {() => void} props.onDismiss
- * @param {object} props.data
- */
 export function AssigmentDetailModal({ visible, onDismiss, data }) {
   if (!data) return <View />
 
   const [mainData, setMainData] = useState({})
   useEffect(() => setMainData(data), [data])
-  useEffect(() => console.log(data), [data])
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -669,6 +684,12 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
           <View style={{ ...styles.modalContainer, ...styles.bottom }}>
             <Text variant="labelSmall">Description</Text>
             <Text variant="bodyMedium">{mainData.description}</Text>
+            <View style={{ marginVertical: 8 }} />
+            {mainData.finished ? (
+              <Chip icon="check">Finished</Chip>
+            ) : (
+              <Chip icon="cancel">Unfinished</Chip>
+            )}
             <Button
               icon="pencil"
               mode="contained"
@@ -719,6 +740,29 @@ export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignme
       </Dialog>
     </Portal>
   )
+}
+
+//? Utils
+
+function areTimeDurationsOverlapping(
+  startTimeA,
+  endTimeA,
+  startTimeB,
+  endTimeB
+) {
+  // Parse time strings to create Date objects
+  const parseTime = timeStr => {
+    const [hours, minutes] = timeStr.split(':')
+    return new Date(0, 0, 0, hours, minutes)
+  }
+
+  const startA = parseTime(startTimeA)
+  const endA = parseTime(endTimeA)
+  const startB = parseTime(startTimeB)
+  const endB = parseTime(endTimeB)
+
+  // Check for overlap
+  return startA < endB && startB < endA
 }
 
 const styles = StyleSheet.create({
