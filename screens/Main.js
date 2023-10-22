@@ -135,21 +135,6 @@ export default function Main() {
   )
 }
 
-function IDK() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text variant="displayLarge">WIP</Text>
-    </View>
-  )
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
