@@ -3,9 +3,10 @@ import { List, MD3Colors, Appbar, PaperProvider } from 'react-native-paper'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 
-import { saveUser } from 'config/redux'
 import { LogoutModal } from 'components/modal'
 import { FIREBASE_AUTH } from 'config/firebase'
+import { onSnapshot } from 'firebase/firestore'
+import { getUserInfo } from 'services/firestore'
 
 export default function SettingsHome({ navigation } ) {
   const user = useSelector(state => state.user.user)
@@ -17,28 +18,38 @@ export default function SettingsHome({ navigation } ) {
     FIREBASE_AUTH.signOut()
   }
 
+  const [userInfo, setUserInfo] = useState({})
+  const userRef = getUserInfo(user ? user.uid : '0')
+  useEffect(() => {
+    const unsub = onSnapshot(userRef, { next: (snap => {
+      setUserInfo(snap.data())
+    }) })
+    return () => unsub()
+  }, [])
+
   return (
     <>
       <ScrollView>
-        <List.Section>
-          <List.Subheader>Some title</List.Subheader>
-          <List.Item
-            title="Admin"
-            left={() => <List.Icon color={MD3Colors.primary50} icon="folder" />}
-            onPress={e => navigation.navigate('SettingsA')}
-            style={styles.listItem}
-          />
-          <List.Item
-            title="Second Item"
-            left={() => (
-              <List.Icon color={MD3Colors.primary50} icon="calendar" />
-            )}
-            onPress={e => navigation.navigate('SettingsA')}
-            style={styles.listItem}
-          />
-        </List.Section>
+        {userInfo && userInfo.admin ? (
+          <List.Section>
+            <List.Subheader>Admin</List.Subheader>
+            <List.Item
+              title="Admin page"
+              left={() => <List.Icon color={MD3Colors.primary50} icon="security" />}
+              onPress={e => navigation.navigate('AdminPage')}
+              style={styles.listItem}
+            />
+          </List.Section>
+        ) : null}
         <List.Section>
           <List.Subheader>User</List.Subheader>
+          <List.Item
+            title="Your name"
+            description={userInfo ? userInfo.name : ''}
+            left={() => <List.Icon color="gray" icon="account" />}
+            onPress={e => console.log(user)}
+            style={styles.listItem}
+          />
           <List.Item
             title="Your email"
             description={user ? user.email : ''}
@@ -49,7 +60,7 @@ export default function SettingsHome({ navigation } ) {
           <List.Item
             title="Your UID"
             description={user ? user.uid : ''}
-            left={() => <List.Icon color="gray" icon="account" />}
+            left={() => <List.Icon color="gray" icon="key" />}
             onPress={e => console.log(user)}
             style={styles.listItem}
           />

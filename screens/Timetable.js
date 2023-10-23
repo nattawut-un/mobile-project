@@ -65,7 +65,6 @@ function TimetablePage() {
   }, [subjects])
 
   const [showAddTimetableModal, setShowAddTimetableModal] = useState(false)
-
   const [showDeleteTimetableModal, setShowDeleteTimetableModal] = useState(false)
   const [selectedTimetable, setSelectedTimetable] = useState(null)
 

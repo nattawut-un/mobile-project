@@ -505,9 +505,9 @@ export function DeleteTimetableModel({ visible, onCancel, onOK, data }) {
         <Dialog.Icon icon="delete" size={48} />
         <Dialog.Title>Do you want to delete this timetable?</Dialog.Title>
         <Dialog.Content>
-          <Text variant="bodyMedium">Day: {DAYS[data.day].long}</Text>
-          <Text variant="bodyMedium">Start time: {data.startTime}</Text>
-          <Text variant="bodyMedium">End time: {data.endTime}</Text>
+          <Text variant="bodyMedium">Day: {data ? DAYS[data.day].long : ''}</Text>
+          <Text variant="bodyMedium">Start time: {data ? data.startTime : ''}</Text>
+          <Text variant="bodyMedium">End time: {data ? data.endTime : ''}</Text>
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onCancel}>Cancel</Button>

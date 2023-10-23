@@ -4,31 +4,28 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Ionicons } from '@expo/vector-icons'
 
 import SettingsHome from './settings/SettingsHome'
+import AdminMain from './AdminPage/AdminMain'
 
 const Stack = createNativeStackNavigator()
 
 export default function Settings() {
   return (
-    <Stack.Navigator initialRouteName='SettingsHome' screenOptions={{
-      header: SettingsHeader
-    }}>
-      <Stack.Screen name='SettingsHome' component={SettingsHome} options={{
-        title: 'Settings',
-      }} />
-      <Stack.Screen name='SettingsA' component={Placeholder} options={{
-        title: 'First Page',
-      }} />
+    <Stack.Navigator initialRouteName="SettingsHome">
+      <Stack.Screen
+        name="SettingsHome"
+        component={SettingsHome}
+        options={{
+          header: SettingsHeader,
+        }}
+      />
+      <Stack.Screen
+        name="AdminPage"
+        component={AdminMain}
+        options={{
+          header: AdminMainHeader,
+        }}
+      />
     </Stack.Navigator>
-  )
-}
-
-function Placeholder() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator animating={true} size="large" />
-      <View style={{ marginVertical: 4 }} />
-      <Text variant="bodyMedium">WIP</Text>
-    </View>
   )
 }
 
@@ -45,6 +42,23 @@ function SettingsHeader({ navigation }) {
         onPress={() => navigation.goBack()}
       />
       <Appbar.Content title="Settings" color="white" />
+    </Appbar.Header>
+  )
+}
+
+function AdminMainHeader({ navigation }) {
+  return (
+    <Appbar.Header
+      mode="small"
+      style={{
+        backgroundColor: MD3Colors.primary50,
+      }}
+    >
+      <Appbar.BackAction
+        color={MD3Colors.primary90}
+        onPress={() => navigation.goBack()}
+      />
+      <Appbar.Content title="Admin" color="white" />
     </Appbar.Header>
   )
 }
