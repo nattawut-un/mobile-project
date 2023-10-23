@@ -4,6 +4,16 @@ import {
   getDocs, onSnapshot, orderBy, query, setDoc, updateDoc, where,
 } from "firebase/firestore";
 
+export const checkAdmin = userId => {
+  getDoc(doc(FIRESTORE_DB, 'user', userId)).then(doc => {
+    console.log(doc.data())
+  })
+}
+
+export const getUserInfo = userId => {
+  return doc(FIRESTORE_DB, 'user', userId)
+}
+
 export const getAssignmentsCollection = userId => {
   return query(
     collection(FIRESTORE_DB, 'assignment'),
