@@ -135,7 +135,7 @@ function Homepage({ navigation }) {
         list={subjects}
       />
       <AssigmentDetailModal
-        data={assignmentData}
+        data={{ ...assignmentData, subject: subjects ? subjects.filter(item => item.key == assignmentData.subjectId)[0] : null }}
         visible={showAssignmentDetails}
         onDismiss={() => setShowAssignmentDetails(false)}
       />

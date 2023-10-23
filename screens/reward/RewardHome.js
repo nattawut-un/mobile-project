@@ -17,20 +17,10 @@ import {
   Searchbar,
   MD3Colors
 } from 'react-native-paper'
-
-import RewardHistory from "./RewardHistory"
-
-import { Ionicons } from '@expo/vector-icons'
-
-import { cloneDeep } from 'lodash'
-import dayjs from 'dayjs'
-
-
-import TestImage from 'assets/icon.png'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { getRewardsCollection, getUserInfo } from 'services/firestore'
-import { onSnapshot } from 'firebase/firestore'
+import { addRedeemDocument, getRewardsCollection, getUserInfo } from 'services/firestore'
+import { Timestamp, onSnapshot } from 'firebase/firestore'
 import { useSelector } from 'react-redux'
+import dayjs from 'dayjs'
 
 export default function RewardHome({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -62,7 +52,7 @@ export default function RewardHome({ navigation }) {
   useEffect(() => {
     const unsub = onSnapshot(userRef, {
       next: snap => {
-        setUserInfo(snap.data())
+        setUserInfo({ ...snap.data(), userId: user.uid })
       },
     })
     return () => unsub()
@@ -162,6 +152,29 @@ export default function RewardHome({ navigation }) {
 }
 
 function RedeemModal({ visible, onCancel, onOK, reward, user }) {
+  const confirm = () => {
+    // console.log('--- confirm ---')
+    // console.log(reward)
+    // console.log(user)
+    // console.log('--- confirm ---')
+
+    const payload = {
+      title: reward.title,
+      image: reward.image,
+      ownerId: reward.ownerUID,
+      userId: user.userId,
+      redeemTime: new Timestamp(dayjs().unix(), 0),
+      rewardId: reward.key,
+      point: reward.point,
+      finished: false
+    }
+
+    // console.log(payload)
+    addRedeemDocument(payload)
+
+    onOK()
+  }
+
   return (
     <Portal>
       <Modal
@@ -196,7 +209,7 @@ function RedeemModal({ visible, onCancel, onOK, reward, user }) {
         <Button
           mode="contained"
           style={{ marginVertical: 4, marginTop: 16 }}
-          onPress={onOK}
+          onPress={confirm}
         >
           Redeem
         </Button>

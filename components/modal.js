@@ -550,7 +550,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
   const saveChanges = () => {
     const seconds = Math.floor(date.getTime() / 1000)
     const editedDoc = {
-      title, description, dueDate: new Timestamp(seconds, 0),
+      title,
+      description,
+      dueDate: new Timestamp(seconds, 0),
     }
     saveAssignmentDocument(data.key, editedDoc)
     setMainData(editedDoc)
@@ -702,7 +704,7 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
             }}
           >
             <Text variant="titleLarge" style={{ color: 'white' }}>
-              {mainData.title}
+              {mainData ? mainData.title : ''}
             </Text>
             {mainData.dueDate ? (
               <Text
@@ -714,6 +716,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
                   .format('MMMM DD, YYYY - HH:mm')}
               </Text>
             ) : null}
+            {/* <Text variant="titleMedium" style={{ color: 'white' }}>
+              Subject: {mainData ? mainData.subject.title : ''}
+            </Text> */}
           </View>
           <View style={{ ...styles.modalContainer, ...styles.bottom }}>
             <Text variant="labelSmall">Description</Text>

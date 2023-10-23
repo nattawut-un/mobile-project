@@ -88,9 +88,8 @@ export const getRewardsCollection = () => {
 }
 
 export const decrementRewardRemaining = rewardId => {
-  const rewardRef = doc(FIRESTORE_DB, 'reward', rewardId)
-  updateDoc(rewardRef, {
-    remaining: increment(-1)
+  updateDoc(doc(FIRESTORE_DB, 'reward', rewardId), {
+    remaining: increment(-1),
   })
 }
 
@@ -99,6 +98,20 @@ export const getRedeemsCollection = userId => {
     collection(FIRESTORE_DB, 'redeem'),
     where('userId', '==', userId)
   )
+}
+
+export const addRedeemDocument = data => {
+  // TODO check if user points and remaining rewards are sufficient
+
+  addDoc(collection(FIRESTORE_DB, 'redeem'), data)
+  decrementRewardRemaining(data.rewardId) //! -1 reward remaining
+  decrementUserPoint(data.userId, data.point) //! -n user points
+}
+
+export const decrementUserPoint = (userId, amount) => {
+  updateDoc(doc(FIRESTORE_DB, 'user', userId), {
+    point: increment(amount * -1)
+  })
 }
 
 // const col = collection(FIRESTORE_DB, 'assignment')
