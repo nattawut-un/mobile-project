@@ -130,6 +130,8 @@ function SubjectInfoHomework({ navigation, route }) {
 
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [assignmentId, setAssignmentId] = useState(null)
+  const [assignmentPoint, setAssignmentPoint] = useState(null)
+  const [userId, setUserId] = useState(null)
 
   useEffect(() => {
     console.log('assignments: ', JSON.stringify(assignments))
@@ -153,7 +155,9 @@ function SubjectInfoHomework({ navigation, route }) {
                   <Text style={{ marginBottom: 8 }}>{description}</Text>
                   {finished ? <ChipFinished /> : <ChipUnfinished onPress={() => {
                     setAssignmentId(key)
+                    setAssignmentPoint(points)
                     setShowConfirmModal(true)
+                    setUserId(user ? user.uid : '')
                   }} />}
                 </ListCard>
               )
@@ -165,6 +169,8 @@ function SubjectInfoHomework({ navigation, route }) {
         onCancel={() => setShowConfirmModal(false)}
         onOK={() => setShowConfirmModal(false)}
         assignmentId={assignmentId}
+        point={assignmentPoint}
+        userId={userId}
       />
     </>
   )

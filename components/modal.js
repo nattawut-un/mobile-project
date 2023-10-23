@@ -50,6 +50,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [points, setPoints] = useState(0)
 
   const isTextBlank = () => title.length <= 0
 
@@ -64,10 +65,10 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
     var document = {
       title,
       description,
-      // dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
       subjectId: list && selectedSubject.length == 0 ? list[0].key : selectedSubject,
-      finished: false
+      finished: false,
+      points: parseInt(points)
     }
     onOK(document)
 
@@ -78,6 +79,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
     setTitle('')
     setDescription('')
     setDate(new Date())
+    setPoints(0)
   }
 
   const [selectedSubject, setSelectedSubject] = useState("")
@@ -106,6 +108,13 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
               numberOfLines={3}
               value={description}
               onChangeText={setDescription}
+            />
+            <TextInput
+              label="Points"
+              mode="outlined"
+              style={styles.textInput}
+              value={points}
+              onChangeText={setPoints}
             />
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
               Subject
@@ -753,9 +762,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
   )
 }
 
-export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignmentId }) {
+export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignmentId, point, userId }) {
   const onConfirm = () => {
-    markAssignmentAsFinished(assignmentId)
+    markAssignmentAsFinished(assignmentId, userId, point)
     onOK()
   }
 

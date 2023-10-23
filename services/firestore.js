@@ -30,8 +30,9 @@ export const saveAssignmentDocument = (docId, data) => {
   updateDoc(doc(FIRESTORE_DB, 'assignment', docId), data)
 }
 
-export const markAssignmentAsFinished = docId => {
+export const markAssignmentAsFinished = (docId, userId, amount) => {
   updateDoc(doc(FIRESTORE_DB, 'assignment', docId), { finished: true })
+  updateDoc(doc(FIRESTORE_DB, 'user', userId), { point: increment(amount) })
 }
 
 export const deleteAssignmentDocument = docId => {
@@ -101,8 +102,6 @@ export const getRedeemsCollection = userId => {
 }
 
 export const addRedeemDocument = data => {
-  // TODO check if user points and remaining rewards are sufficient
-
   addDoc(collection(FIRESTORE_DB, 'redeem'), data)
   decrementRewardRemaining(data.rewardId) //! -1 reward remaining
   decrementUserPoint(data.userId, data.point) //! -n user points
