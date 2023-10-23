@@ -139,16 +139,6 @@ export default function SubjectHome({ navigation }) {
                   )}
                   <Text variant="titleLarge">{item.title}</Text>
                   <Text variant="bodyMedium">{item.description}</Text>
-                  {/* <View
-                    style={{
-                      flexDirection: 'row',
-                      marginTop: 8,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Chip style={{ marginRight: 8 }}>Next: Mon, 9:00</Chip>
-                    <Chip style={{ marginRight: 8 }}>__ Homeworks</Chip>
-                  </View> */}
                 </Card.Content>
               </Card>
             </TouchableOpacity>
@@ -167,18 +157,6 @@ export default function SubjectHome({ navigation }) {
         onCancel={() => setShowAddSubjectModal(false)}
         onOK={addSubject}
       />
-      {/* <Snackbar
-        visible={visibleSnackbar}
-        onDismiss={onDismissSnackBar}
-        action={{
-          label: 'Undo',
-          onPress: () => {
-            console.log('Undo')
-          },
-        }}
-      >
-        Subject is deleted.
-      </Snackbar> */}
     </>
   )
 }

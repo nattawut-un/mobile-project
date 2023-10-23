@@ -5,7 +5,7 @@ import { Portal, PaperProvider, Text, Appbar, MD3Colors, Divider } from 'react-n
 import ListCard from '../../components/ListCard';
 import QrImage from '../../assets/1f4f7.jpg';
 import TestImage from '../../assets/icon.png';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function AdminHome({ navigation }) {
   return (
@@ -13,30 +13,20 @@ export default function AdminHome({ navigation }) {
       <Portal>
         <ScrollView style={styles.container}>
           <View>
-          {[...Array(1).keys()].map((n, i) => (
-              <ListCard
-                key={i}
-                title={ 'Scan Qr' }
-                description={
-                  ""
-                }
-                image={QrImage}
-              />
-            ))}
+            <ListCard
+              title="Scan QR"
+              icon={<MaterialCommunityIcons name="qrcode-scan" size={36} color={MD3Colors.primary50} />}
+              onPress={() => navigation.navigate('AdminScan')}
+            />
           </View>
           <Divider style={{ marginVertical: 8 }} />
-          <Text variant='labelLarge'>
-            Your items
-          </Text>
+          <Text variant="labelLarge">Your items</Text>
           <View style={{ marginVertical: 8 }}>
             {[...Array(1).keys()].map((n, i) => (
               <ListCard
                 key={i}
-                title={ 'PENPINEAPPLEAPPLEPEN' }
-                description={
-                  'PENPINEALPPLEAPPLEPEN'+'\n'+
-                  'Redeemed: 8/10'
-                }
+                title={'PENPINEAPPLEAPPLEPEN'}
+                description={'PENPINEALPPLEAPPLEPEN' + '\n' + 'Redeemed: 8/10'}
                 image={TestImage}
               />
             ))}

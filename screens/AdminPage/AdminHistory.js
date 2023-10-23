@@ -5,7 +5,7 @@ import React from 'react'
 import ListCard from 'components/ListCard'
 import TestImage from 'assets/icon.png';
 
-const History = () => {
+const AdminHistory = () => {
   return (
     <ScrollView style={ styles.container }>
       <View>
@@ -29,7 +29,7 @@ const History = () => {
   )
 }
 
-export default History
+export default AdminHistory
 
 const styles = StyleSheet.create({
   container: {

@@ -1,7 +1,8 @@
 import { FIRESTORE_DB } from "config/firebase";
 import {
+  FieldValue,
   addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc,
-  getDocs, onSnapshot, orderBy, query, setDoc, updateDoc, where,
+  getDocs, increment, onSnapshot, orderBy, query, setDoc, updateDoc, where,
 } from "firebase/firestore";
 
 export const checkAdmin = userId => {
@@ -26,11 +27,12 @@ export const addAssignmentDocument = data => {
 }
 
 export const saveAssignmentDocument = (docId, data) => {
-  setDoc(doc(FIRESTORE_DB, 'assignment', docId), data)
+  updateDoc(doc(FIRESTORE_DB, 'assignment', docId), data)
 }
 
-export const markAssignmentAsFinished = docId => {
+export const markAssignmentAsFinished = (docId, userId, amount) => {
   updateDoc(doc(FIRESTORE_DB, 'assignment', docId), { finished: true })
+  updateDoc(doc(FIRESTORE_DB, 'user', userId), { point: increment(amount) })
 }
 
 export const deleteAssignmentDocument = docId => {
@@ -79,6 +81,35 @@ export const deleteTimetable = (subjectId, data) => {
 
   updateDoc(doc(FIRESTORE_DB, 'subject', subjectId), {
     timetable: arrayRemove({ day, h, m, hEnd, mEnd }),
+  })
+}
+
+export const getRewardsCollection = () => {
+  return collection(FIRESTORE_DB, 'reward')
+}
+
+export const decrementRewardRemaining = rewardId => {
+  updateDoc(doc(FIRESTORE_DB, 'reward', rewardId), {
+    remaining: increment(-1),
+  })
+}
+
+export const getRedeemsCollection = userId => {
+  return query(
+    collection(FIRESTORE_DB, 'redeem'),
+    where('userId', '==', userId)
+  )
+}
+
+export const addRedeemDocument = data => {
+  addDoc(collection(FIRESTORE_DB, 'redeem'), data)
+  decrementRewardRemaining(data.rewardId) //! -1 reward remaining
+  decrementUserPoint(data.userId, data.point) //! -n user points
+}
+
+export const decrementUserPoint = (userId, amount) => {
+  updateDoc(doc(FIRESTORE_DB, 'user', userId), {
+    point: increment(amount * -1)
   })
 }
 

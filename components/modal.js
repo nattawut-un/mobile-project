@@ -50,6 +50,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [points, setPoints] = useState(0)
 
   const isTextBlank = () => title.length <= 0
 
@@ -64,10 +65,10 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
     var document = {
       title,
       description,
-      // dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
-      subjectId: selectedSubject,
-      finished: false
+      subjectId: list && selectedSubject.length == 0 ? list[0].key : selectedSubject,
+      finished: false,
+      points: parseInt(points)
     }
     onOK(document)
 
@@ -78,6 +79,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
     setTitle('')
     setDescription('')
     setDate(new Date())
+    setPoints(0)
   }
 
   const [selectedSubject, setSelectedSubject] = useState("")
@@ -106,6 +108,13 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
               numberOfLines={3}
               value={description}
               onChangeText={setDescription}
+            />
+            <TextInput
+              label="Points"
+              mode="outlined"
+              style={styles.textInput}
+              value={points}
+              onChangeText={setPoints}
             />
             <Text variant="labelMedium" style={{ marginTop: 8 }}>
               Subject
@@ -550,8 +559,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
   const saveChanges = () => {
     const seconds = Math.floor(date.getTime() / 1000)
     const editedDoc = {
-      title, description, dueDate: new Timestamp(seconds, 0),
-      ownerUID: data.ownerUID, subjectID: ''
+      title,
+      description,
+      dueDate: new Timestamp(seconds, 0),
     }
     saveAssignmentDocument(data.key, editedDoc)
     setMainData(editedDoc)
@@ -703,7 +713,7 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
             }}
           >
             <Text variant="titleLarge" style={{ color: 'white' }}>
-              {mainData.title}
+              {mainData ? mainData.title : ''}
             </Text>
             {mainData.dueDate ? (
               <Text
@@ -715,6 +725,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
                   .format('MMMM DD, YYYY - HH:mm')}
               </Text>
             ) : null}
+            {/* <Text variant="titleMedium" style={{ color: 'white' }}>
+              Subject: {mainData ? mainData.subject.title : ''}
+            </Text> */}
           </View>
           <View style={{ ...styles.modalContainer, ...styles.bottom }}>
             <Text variant="labelSmall">Description</Text>
@@ -749,9 +762,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
   )
 }
 
-export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignmentId }) {
+export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignmentId, point, userId }) {
   const onConfirm = () => {
-    markAssignmentAsFinished(assignmentId)
+    markAssignmentAsFinished(assignmentId, userId, point)
     onOK()
   }
 

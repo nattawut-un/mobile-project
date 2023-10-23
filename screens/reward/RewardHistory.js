@@ -1,65 +1,86 @@
-import { View, ScrollView, Text, StyleSheet } from 'react-native'
-import { List, MD3Colors, Appbar } from 'react-native-paper'
+import { StyleSheet, ScrollView, View } from 'react-native'
+import {
+  Portal,
+  PaperProvider,
+  Text,
+  Appbar,
+  MD3Colors,
+  Chip,
+} from 'react-native-paper'
+import { useSelector } from 'react-redux'
+import { getRedeemsCollection } from 'services/firestore'
+import { useEffect } from 'react'
 
-export default function RewardHistory({ navigation } ) {
+import ListCard from 'components/ListCard'
+import TestImage from 'assets/icon.png'
+import { Timestamp, onSnapshot } from 'firebase/firestore'
+import { useState } from 'react'
+import dayjs from 'dayjs'
+
+export default RewardHistory = ({ navigation }) => {
+  const user = useSelector(state => state.user.user)
+  const historyCollection = getRedeemsCollection(user ? user.uid : '')
+
+  const [history, setHistory] = useState([])
+  useEffect(() => {
+    const unsub = onSnapshot(historyCollection, { next: snap => {
+      const data = []
+      snap.forEach(res => {
+        const fields = res.data()
+        data.push({ key: res.id, ...fields })
+      })
+      setHistory(data)
+    }})
+  return () => unsub()
+  }, [])
+
   return (
-    <View>
-      <Appbar.Header
-          mode="small"
-          style={{
-            backgroundColor: MD3Colors.primary50,
-          }}
-        >
-          <Appbar.BackAction color={MD3Colors.primary90} onPress={() => navigation.goBack()} />
-        <Appbar.Content title='History' color='white' />
-      </Appbar.Header>
-      <ScrollView>
-        <View>
-            <Text>
-                Hello
-            </Text>
-        </View>
-
-        
-        {/* <List.Section>
-          <List.Subheader>Some title</List.Subheader>
-          <List.Item
-            title="First Item"
-            left={() => <List.Icon color={MD3Colors.primary50} icon="folder" />}
-            onPress={e => navigation.navigate('SettingsA')}
-            style={styles.listItem}
-          />
-          <List.Item
-            title="Second Item"
-            left={() => <List.Icon color={MD3Colors.primary50} icon="calendar" />}
-            onPress={e => navigation.navigate('SettingsA')}
-            style={styles.listItem}
-          />
-        </List.Section>
-        <List.Section>
-          <List.Subheader>About</List.Subheader>
-          <List.Item
-            title="Version 0.0.1"
-            left={() => <List.Icon color='gray' icon="application-brackets-outline" />}
-            onPress={e => console.log('Version 0.0.1')}
-            style={styles.listItem}
-          />
-        </List.Section> */}
-      </ScrollView>
-    </View>
+    <ScrollView style={styles.container}>
+      <View>
+        {history ? (
+          history.map((item, index) => (
+            <ListCard
+              key={index}
+              title={item.title}
+              description={dayjs(
+                new Timestamp(item.redeemTime.seconds, 0).toDate()
+              ).format('HH:mm - MMMM DD, YYYY')}
+              image={{ uri: item.image }}
+            >
+              {!item.finished ? (
+                <Chip
+                  icon='basket'
+                  style={{ ...styles.chip, backgroundColor: MD3Colors.primary90 }}
+                  onPress={() => navigation.navigate('RewardQRCode')}
+                  >
+                  Redeem
+                </Chip>
+              ) : (
+                <Chip
+                  disabled
+                  icon='check'
+                  style={{ ...styles.chip }}
+                >
+                  Redeemed
+                </Chip>
+              )}
+            </ListCard>
+          ))
+        ) : (
+          <Text variant="labelMedium">Nothing</Text>
+        )}
+      </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // backgroundColor: '#fff',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    paddingHorizontal: 16,
-    height: '100%',
+    padding: 16,
+    backgroundColor: 'white',
   },
-  listItem: {
-    paddingHorizontal: 16,
+  chip: {
+    marginTop: 10,
+    backgroundColor: 'white',
   },
 })
