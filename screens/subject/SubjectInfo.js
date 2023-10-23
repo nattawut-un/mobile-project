@@ -131,6 +131,10 @@ function SubjectInfoHomework({ navigation, route }) {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [assignmentId, setAssignmentId] = useState(null)
 
+  useEffect(() => {
+    console.log('assignments: ', JSON.stringify(assignments))
+  }, [assignments])
+
   return (
     <>
       <ScrollView style={styles.container}>

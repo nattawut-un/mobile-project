@@ -6,14 +6,14 @@ import {
 } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
 
-import AdminSubjectHome from '../subject/AdminSubjectHome'
+// import AdminSubjectHome from './AdminSubjectHome'
 
 const Stack = createNativeStackNavigator()
 
-export default function Items() {
+export default function AdminItems() {
   return (
     <Stack.Navigator initialRouteName='SubjectHome'>
-      <Stack.Screen name='SubjectHome' component={AdminSubjectHome} options={{
+      <Stack.Screen name='SubjectHome' component={Placeholder} options={{
         title: 'Items',
         headerLeft: () => <Ionicons name="bookmarks" size={24} color="black" style={{ marginRight: 12 }} />,
         headerShown: false
@@ -26,13 +26,13 @@ export default function Items() {
 }
 
 function Placeholder({ route }) {
-  const { subject } = route.params
+  // const { subject } = route.params
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <ActivityIndicator animating={true} size="large" />
       <View style={{ marginVertical: 4 }} />
-      <Text variant="bodyMedium">{subject.title}</Text>
+      {/* <Text variant="bodyMedium">{subject.title}</Text> */}
     </View>
   )
 }

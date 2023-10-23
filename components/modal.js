@@ -66,7 +66,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
       description,
       // dueDate: { seconds: Math.floor(new Date(date).getTime() / 1000) },
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
-      subjectId: selectedSubject,
+      subjectId: list && selectedSubject.length == 0 ? list[0].key : selectedSubject,
       finished: false
     }
     onOK(document)
@@ -551,7 +551,6 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
     const seconds = Math.floor(date.getTime() / 1000)
     const editedDoc = {
       title, description, dueDate: new Timestamp(seconds, 0),
-      ownerUID: data.ownerUID, subjectID: ''
     }
     saveAssignmentDocument(data.key, editedDoc)
     setMainData(editedDoc)

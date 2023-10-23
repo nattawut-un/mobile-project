@@ -21,9 +21,7 @@ export default function Settings() {
       <Stack.Screen
         name="AdminPage"
         component={AdminMain}
-        options={{
-          header: AdminMainHeader,
-        }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   )
@@ -42,23 +40,6 @@ function SettingsHeader({ navigation }) {
         onPress={() => navigation.goBack()}
       />
       <Appbar.Content title="Settings" color="white" />
-    </Appbar.Header>
-  )
-}
-
-function AdminMainHeader({ navigation }) {
-  return (
-    <Appbar.Header
-      mode="small"
-      style={{
-        backgroundColor: MD3Colors.primary50,
-      }}
-    >
-      <Appbar.BackAction
-        color={MD3Colors.primary90}
-        onPress={() => navigation.goBack()}
-      />
-      <Appbar.Content title="Admin" color="white" />
     </Appbar.Header>
   )
 }
