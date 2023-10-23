@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
+import { View, ScrollView, StyleSheet, SafeAreaView, Image, Alert } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { useState, useEffect, useLayoutEffect } from 'react'
 import {
@@ -157,6 +157,14 @@ function RedeemModal({ visible, onCancel, onOK, reward, user }) {
     // console.log(reward)
     // console.log(user)
     // console.log('--- confirm ---')
+
+    if (reward.remaining <= 0) {
+      return Alert.alert('Error', 'There is no reward left.')
+    }
+
+    if (reward.point > user.point) {
+      return Alert.alert('Error', 'Your point is insufficient.')
+    }
 
     const payload = {
       title: reward.title,
