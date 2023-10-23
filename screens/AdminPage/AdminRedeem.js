@@ -1,5 +1,5 @@
-import { StyleSheet, View, Image, Button } from 'react-native'
-import { Portal, PaperProvider, Text, Appbar, MD3Colors, Chip } from 'react-native-paper';
+import { StyleSheet, View, Image } from 'react-native'
+import { Portal, PaperProvider, Text, Appbar, MD3Colors, Chip, Button } from 'react-native-paper';
 import React from 'react'
 
 import ItemImage from 'assets/1f4f7.jpg'
@@ -38,10 +38,14 @@ const AdminRedeem = () => {
                 </Text>
             </View>
             <View style={styles.buttonredeem}>
-                <Button color={MD3Colors.primary50} onPress={() => console.log('Pressed')} title='Redeem' />
+                <Button mode="contained" onPress={() => console.log('Pressed')}>
+                    Redeem
+                </Button>
             </View>
             <View style={styles.buttoncancle}>
-                <Button color="#808080" onPress={() => console.log('Pressed')} title='Cancle' />
+                <Button mode="outlined" labelStyle={{ color: "purple" }} onPress={() => console.log('Pressed')}>
+                    Cancle
+                </Button>
             </View>
         </View>
 
@@ -54,7 +58,6 @@ const styles = StyleSheet.create({
     ItemImages: {
         width: "100%",
         height: "40%",
-        resizeMode: "contain"
     },
     header: {
         paddingLeft: 10,
@@ -71,9 +74,9 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     buttonredeem: {
-        marginTop: 140,
+        marginTop: 130,
     },
     buttoncancle: {
-        marginTop: 10
+        marginTop: 5
     }
 })
