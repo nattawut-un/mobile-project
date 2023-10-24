@@ -143,6 +143,10 @@ export const getAdminRedeemsCollection = ownerId => {
   )
 }
 
+export const getRedeemDocument = docId => {
+  return doc(FIRESTORE_DB, 'redeem', docId)
+}
+
 export const addRedeemDocument = data => {
   addDoc(collection(FIRESTORE_DB, 'redeem'), data)
   decrementRewardRemaining(data.rewardId) //! -1 reward remaining
@@ -153,6 +157,10 @@ export const decrementUserPoint = (userId, amount) => {
   updateDoc(doc(FIRESTORE_DB, 'user', userId), {
     point: increment(amount * -1)
   })
+}
+
+export const markAsRedeem = redeemId => {
+  updateDoc(doc(FIRESTORE_DB, 'redeem', redeemId), { finished: true })
 }
 
 // const col = collection(FIRESTORE_DB, 'assignment')
