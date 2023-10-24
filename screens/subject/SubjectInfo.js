@@ -67,7 +67,7 @@ function SubjectInfoTab({ navigation, route }) {
           }}
         />
       ) : null}
-      <ListCard title="Teacher" description="Lorem Ipsum" image={TestImage} />
+      <ListCard title="Teacher" description={subject.teacher} image={TestImage} />
       <ListCard
         title="Description"
         description={subject.description}
