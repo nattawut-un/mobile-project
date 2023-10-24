@@ -28,11 +28,6 @@ function CalendarPageHeader({ navigation }) {
     <Appbar.Header style={{ backgroundColor: MD3Colors.primary50 }}>
       <Appbar.Action icon="calendar" color={MD3Colors.primary90} />
       <Appbar.Content title={dayjs().format('ddd, MMM DD')} color="white" />
-      <Appbar.Action
-        icon="calendar-today"
-        color={MD3Colors.primary90}
-        onPress={() => console.log('Today(?)')}
-      />
     </Appbar.Header>
   )
 }
