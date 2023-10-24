@@ -2,7 +2,7 @@ import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
 import { useEffect, useState } from 'react'
 import { Text, Appbar, ActivityIndicator, MD3Colors, Chip, Divider } from 'react-native-paper'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
-import { MaterialIcons } from '@expo/vector-icons'
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
 // import { getSubjectsCollection } from 'services/firestore'
 import { DAYS } from 'constants'
 import { useSelector, useDispatch } from 'react-redux'
@@ -67,7 +67,11 @@ function SubjectInfoTab({ navigation, route }) {
           }}
         />
       ) : null}
-      <ListCard title="Teacher" description={subject.teacher} image={TestImage} />
+      <ListCard
+        title="Teacher"
+        description={subject.teacher}
+        icon={<FontAwesome name="user" size={40} color={MD3Colors.primary50} />}
+      />
       <ListCard
         title="Description"
         description={subject.description}
@@ -146,19 +150,31 @@ function SubjectInfoHomework({ navigation, route }) {
                 <ListCard
                   key={key}
                   title={title}
-                  icon={<MaterialIcons name="info" size={40} color="gray" />}
+                  icon={
+                    <MaterialIcons
+                      name="info"
+                      size={40}
+                      color={MD3Colors.primary50}
+                    />
+                  }
                 >
                   <Text variant="bodySmall">11 Oct, 2023 - 22:00:01</Text>
                   <Text variant="bodySmall">{points} points</Text>
                   <Divider style={{ marginVertical: 8 }} />
                   <Text variant="labelMedium">Description</Text>
                   <Text style={{ marginBottom: 8 }}>{description}</Text>
-                  {finished ? <ChipFinished /> : <ChipUnfinished onPress={() => {
-                    setAssignmentId(key)
-                    setAssignmentPoint(points)
-                    setShowConfirmModal(true)
-                    setUserId(user ? user.uid : '')
-                  }} />}
+                  {finished ? (
+                    <ChipFinished />
+                  ) : (
+                    <ChipUnfinished
+                      onPress={() => {
+                        setAssignmentId(key)
+                        setAssignmentPoint(points)
+                        setShowConfirmModal(true)
+                        setUserId(user ? user.uid : '')
+                      }}
+                    />
+                  )}
                 </ListCard>
               )
             )

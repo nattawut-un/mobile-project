@@ -14,6 +14,7 @@ import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
 import { AddAssignmentModal, AddSubjectModal, AddTimetableModal, AssigmentDetailModal } from 'components/modal';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator()
 
@@ -105,7 +106,7 @@ function Homepage({ navigation }) {
                 title={item.title}
                 description={item.description}
                 date={item.dueDate.seconds ?? null}
-                image={TestImage}
+                icon={<MaterialCommunityIcons name="calendar" size={36} color={MD3Colors.primary50} />}
                 onPress={() => showModal(item)}
               />
             )}

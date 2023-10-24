@@ -1,10 +1,11 @@
 import { View, StyleSheet, ScrollView } from 'react-native'
-import { Text } from 'react-native-paper'
+import { MD3Colors, Text } from 'react-native-paper'
 import React from 'react'
 import ListCard from 'components/ListCard'
 import TestImage from '../../assets/JastKherZ.png'
 import dayjs from 'dayjs'
 import { Timestamp } from 'firebase/firestore'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 // Date example
 // {"dateString": "2023-10-22", "day": 22, "month": 10, "timestamp": 1697932800000, "year": 2023}
@@ -31,7 +32,13 @@ const CalendarDetails = ({ navigation, route }) => {
               description={item.description}
               date={item.dueDate.seconds}
               showTime={true}
-              image={TestImage}
+              icon={
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={36}
+                  color={MD3Colors.primary50}
+                />
+              }
             />
           ))
         ) : (
