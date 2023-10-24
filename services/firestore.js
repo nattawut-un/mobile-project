@@ -104,16 +104,42 @@ export const getRewardsCollection = () => {
   return collection(FIRESTORE_DB, 'reward')
 }
 
+export const getItemsCollection = userId => {
+  return query(
+    collection(FIRESTORE_DB, 'reward'),
+    where('ownerUID', '==', userId)
+  )
+}
+
+export const addItemDocument = data => {
+  addDoc(collection(FIRESTORE_DB, 'reward'), data)
+}
+
+export const updateItemDocument = (itemId, data) => {
+  updateDoc(doc(FIRESTORE_DB, 'reward', itemId), data)
+}
+
+export const deleteItemDocument = itemId => {
+  deleteDoc(doc(FIRESTORE_DB, 'reward', itemId))
+}
+
 export const decrementRewardRemaining = rewardId => {
   updateDoc(doc(FIRESTORE_DB, 'reward', rewardId), {
     remaining: increment(-1),
   })
 }
 
-export const getRedeemsCollection = userId => {
+export const getUserRedeemsCollection = userId => {
   return query(
     collection(FIRESTORE_DB, 'redeem'),
     where('userId', '==', userId)
+  )
+}
+
+export const getAdminRedeemsCollection = ownerId => {
+  return query(
+    collection(FIRESTORE_DB, 'redeem'),
+    where('ownerId', '==', ownerId)
   )
 }
 

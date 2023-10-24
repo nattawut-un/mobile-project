@@ -8,7 +8,7 @@ import {
   Chip,
 } from 'react-native-paper'
 import { useSelector } from 'react-redux'
-import { getRedeemsCollection } from 'services/firestore'
+import { getUserRedeemsCollection } from 'services/firestore'
 import { useEffect } from 'react'
 
 import ListCard from 'components/ListCard'
@@ -19,7 +19,7 @@ import dayjs from 'dayjs'
 
 export default RewardHistory = ({ navigation }) => {
   const user = useSelector(state => state.user.user)
-  const historyCollection = getRedeemsCollection(user ? user.uid : '')
+  const historyCollection = getUserRedeemsCollection(user ? user.uid : '')
 
   const [history, setHistory] = useState([])
   useEffect(() => {

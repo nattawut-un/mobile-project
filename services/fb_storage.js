@@ -43,9 +43,11 @@ const extractStoragePathFromUri = path => {
   var p4 = JSON.parse(JSON.stringify(p3)).splice(7, 2)
   var p5 = p4.join('/')
 
-  console.log(p1)
-  console.log(p2)
-  console.log(p3)
-  console.log(p4)
+  // console.log(p1)
+  // console.log(p2)
+  // console.log(p3)
+  // console.log(p4)
   console.log(p5)
+
+  return p5
 }

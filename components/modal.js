@@ -1,15 +1,14 @@
-import { useEffect, useState, useRef } from "react";
-import { Alert, Image, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
-import { Text, Dialog, Button, Portal, PaperProvider, TextInput, MD3Colors, HelperText, Modal, Chip, Divider } from "react-native-paper";
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { useEffect, useState } from "react";
+import { Alert, Image, StyleSheet, View, ScrollView } from "react-native";
+import { Text, Dialog, Button, Portal, TextInput, MD3Colors, Modal, Chip } from "react-native-paper";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from "dayjs";
 import { Timestamp } from "firebase/firestore";
-import * as ImagePicker from 'expo-image-picker'
-import DropDown from 'react-native-paper-dropdown'
-import { Picker } from '@react-native-picker/picker'
+import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker';
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { addTimetable, deleteAssignmentDocument, deleteSubjectDocument, deleteTimetable, getSubjectsCollectionData, markAssignmentAsFinished, saveAssignmentDocument } from "services/firestore";
+import { addItemDocument, addTimetable, deleteAssignmentDocument, deleteItemDocument, deleteSubjectDocument, deleteTimetable, markAssignmentAsFinished, saveAssignmentDocument, updateItemDocument } from "services/firestore";
 import { DAYS } from "constants";
 
 export function LogoutModal({ visible, onCancel, onOK }) {
@@ -189,9 +188,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
   )
 }
 
-export function AddSubjectModal(props) {
-  const { visible, onCancel, onOK } = props
-
+export function AddSubjectModal({ visible, onCancel, onOK }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [teacher, setTeacher] = useState('')
@@ -234,82 +231,80 @@ export function AddSubjectModal(props) {
   }
 
   return (
-    <>
-      <Portal>
-        <Dialog visible={visible} onDismiss={pressCancel}>
-          <Dialog.Title>Add Subject</Dialog.Title>
-          <Dialog.ScrollArea>
-            <ScrollView>
-              <TextInput
-                label="Title"
-                mode="outlined"
-                style={styles.textInput}
-                value={title}
-                onChangeText={setTitle}
-              />
-              {/* <HelperText type="error" visible={isTextBlank()}>
-                Title cannot be blank
-              </HelperText> */}
-              <TextInput
-                label="Teacher"
-                mode="outlined"
-                style={styles.textInput}
-                value={teacher}
-                onChangeText={setTeacher}
-              />
-              <TextInput
-                label="Description"
-                mode="outlined"
-                style={{ ...styles.textInput, height: null }}
-                value={description}
-                onChangeText={setDescription}
-                multiline
-                numberOfLines={3}
-              />
-              <Button
-                style={{ marginVertical: 8 }}
-                icon={file ? 'file' : 'file-outline'}
-                mode="contained"
-                onPress={async () => {
-                  const res = await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.All,
-                    allowsEditing: true,
-                    aspect: [16, 9],
-                    quality: 1,
-                  })
-                  console.log(res)
-                  if (!res.canceled) setFile(res.assets[0])
-                }}
-              >
-                {file ? 'Image added' : 'Select File'}
-              </Button>
-              {file ? (
-                <Image
-                  source={{ uri: file.uri }}
-                  style={{ width: '100%', height: 150, borderRadius: 15 }}
-                />
-              ) : null}
-              {file ? (
-                <Button
-                  icon="delete"
-                  textColor="red"
-                  style={{ marginTop: 8 }}
-                  onPress={() => setFile(null)}
-                >
-                  Remove
-                </Button>
-              ) : null}
-            </ScrollView>
-          </Dialog.ScrollArea>
-          <Dialog.Actions>
-            <Button onPress={pressCancel}>Cancel</Button>
-            <Button onPress={pressOK} mode="contained">
-              Add
+    <Portal>
+      <Dialog visible={visible} onDismiss={pressCancel}>
+        <Dialog.Title>Add Subject</Dialog.Title>
+        <Dialog.ScrollArea>
+          <ScrollView>
+            <TextInput
+              label="Title"
+              mode="outlined"
+              style={styles.textInput}
+              value={title}
+              onChangeText={setTitle}
+            />
+            {/* <HelperText type="error" visible={isTextBlank()}>
+              Title cannot be blank
+            </HelperText> */}
+            <TextInput
+              label="Teacher"
+              mode="outlined"
+              style={styles.textInput}
+              value={teacher}
+              onChangeText={setTeacher}
+            />
+            <TextInput
+              label="Description"
+              mode="outlined"
+              style={{ ...styles.textInput, height: null }}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={3}
+            />
+            <Button
+              style={{ marginVertical: 8 }}
+              icon={file ? 'file' : 'file-outline'}
+              mode="contained"
+              onPress={async () => {
+                const res = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.All,
+                  allowsEditing: true,
+                  aspect: [16, 9],
+                  quality: 1,
+                })
+                console.log(res)
+                if (!res.canceled) setFile(res.assets[0])
+              }}
+            >
+              {file ? 'Image added' : 'Select File'}
             </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </>
+            {file ? (
+              <Image
+                source={{ uri: file.uri }}
+                style={{ width: '100%', height: 150, borderRadius: 15 }}
+              />
+            ) : null}
+            {file ? (
+              <Button
+                icon="delete"
+                textColor="red"
+                style={{ marginTop: 8 }}
+                onPress={() => setFile(null)}
+              >
+                Remove
+              </Button>
+            ) : null}
+          </ScrollView>
+        </Dialog.ScrollArea>
+        <Dialog.Actions>
+          <Button onPress={pressCancel}>Cancel</Button>
+          <Button onPress={pressOK} mode="contained">
+            Add
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
   )
 }
 
@@ -344,9 +339,7 @@ export function DeleteSubjectMobal({ visible, onCancel, onOK, subjectId }) {
   )
 }
 
-export function AddTimetableModal(props) {
-  const { visible, onCancel, onOK, subjectList, timetableList } = props
-
+export function AddTimetableModal({ visible, onCancel, onOK, subjectList, timetableList }) {
   const [subject, setSubject] = useState()
   const [selectedDay, setSelectedDay] = useState(1)
   const [startHour, setStartHour] = useState('00')
@@ -790,6 +783,310 @@ export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignme
   )
 }
 
+export function AddRewardModal({ visible, onCancel, onOK, userId }) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [point, setPoint] = useState('')
+  const [remaining, setRemaining] = useState('')
+  const [file, setFile] = useState(null)
+
+  const confirm = async () => {
+    if (!title || !description || !point || isNaN(point) || !remaining || isNaN(remaining) || !file) {
+      return Alert.alert('Error', 'Data is invalid.')
+    }
+
+    const imageUri = await uploadFile(file)
+    console.log(imageUri)
+
+    const data = {
+      title,
+      description,
+      point: parseFloat(point),
+      remaining: parseInt(remaining),
+      image: imageUri,
+      ownerUID: userId
+    }
+
+    addItemDocument(data)
+    onOK()
+  }
+
+  const clearAllFields = () => {
+    setTitle('')
+    setDescription('')
+    setPoint('')
+    setRemaining('')
+  }
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Title>Add item...</Dialog.Title>
+        <Dialog.ScrollArea>
+          <TextInput
+            label="Title"
+            mode="outlined"
+            value={title}
+            onChangeText={setTitle}
+            style={styles.textInput}
+          />
+          <TextInput
+            label="Description"
+            mode="outlined"
+            value={description}
+            onChangeText={setDescription}
+            style={{ ...styles.textInput, height: null }}
+            multiline
+            numberOfLines={3}
+          />
+          <TextInput
+            label="Price"
+            mode="outlined"
+            value={point}
+            onChangeText={setPoint}
+            style={styles.textInput}
+          />
+          <TextInput
+            label="Remaining"
+            mode="outlined"
+            value={remaining}
+            onChangeText={setRemaining}
+            style={styles.textInput}
+          />
+          <Button
+            style={{ marginVertical: 8 }}
+            // icon={'file-outline'}
+            icon={file ? 'file' : 'file-outline'}
+            mode="contained"
+            onPress={async () => {
+              const res = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [16, 9],
+                quality: 1,
+              })
+              console.log(res)
+              if (!res.canceled) setFile(res.assets[0])
+            }}
+          >
+            {file ? 'Image added' : 'Select File'}
+          </Button>
+          {file ? (
+            <Image
+              source={{ uri: file.uri }}
+              style={{ width: '100%', height: 150, borderRadius: 15 }}
+            />
+          ) : null}
+          {file ? (
+            <Button
+              icon="delete"
+              textColor="red"
+              style={{ marginTop: 8 }}
+              onPress={() => setFile(null)}
+            >
+              Remove
+            </Button>
+          ) : null}
+        </Dialog.ScrollArea>
+
+        <View style={{ marginVertical: 8 }} />
+        <Dialog.Actions>
+          <Button
+            mode="contained-tonal"
+            style={{ marginVertical: 4 }}
+            onPress={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            style={{ marginVertical: 4 }}
+            onPress={confirm}
+          >
+            Add
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  )
+}
+
+export function EditRewardModal({ visible, onCancel, onOK, item }) {
+  const [mainData, setMainData] = useState({})
+  useEffect(() => setMainData(item), [item])
+  useEffect(() => resetInput(), [mainData])
+
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [point, setPoint] = useState('')
+  const [remaining, setRemaining] = useState('')
+  const [file, setFile] = useState(null)
+
+  const confirm = async () => {
+    if (!title || !description || !point || isNaN(point) || !remaining || isNaN(remaining)) {
+      return Alert.alert('Error', 'Data is invalid.')
+    }
+
+    var data = {
+      title,
+      description,
+      point: parseFloat(point),
+      remaining: parseInt(remaining),
+    }
+
+    if (file) {
+      data['image'] = await uploadFile(file)
+    }
+
+    updateItemDocument(item.key, data)
+    onOK()
+  }
+
+  const resetInput = () => {
+    setTitle(mainData.title)
+    setDescription(mainData.description)
+    setPoint(mainData.point + '')
+    setRemaining(mainData.remaining + '')
+  }
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Title>Edit item...</Dialog.Title>
+        <Dialog.ScrollArea>
+          <TextInput
+            label="Title"
+            mode="outlined"
+            value={title}
+            onChangeText={setTitle}
+            style={styles.textInput}
+          />
+          <TextInput
+            label="Description"
+            mode="outlined"
+            value={description}
+            onChangeText={setDescription}
+            style={{ ...styles.textInput, height: null }}
+            multiline
+            numberOfLines={3}
+          />
+          <TextInput
+            label="Price"
+            mode="outlined"
+            value={point}
+            onChangeText={setPoint}
+            style={styles.textInput}
+          />
+          <TextInput
+            label="Remaining"
+            mode="outlined"
+            value={remaining}
+            onChangeText={setRemaining}
+            style={styles.textInput}
+          />
+          <Button
+            style={{ marginVertical: 8 }}
+            // icon={'file-outline'}
+            icon={file ? 'file' : 'file-outline'}
+            mode="contained"
+            onPress={async () => {
+              const res = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [16, 9],
+                quality: 1,
+              })
+              console.log(res)
+              if (!res.canceled) setFile(res.assets[0])
+            }}
+          >
+            {file ? 'Image added' : 'Select File'}
+          </Button>
+          <Image
+            source={{ uri: file ? file.uri : mainData.image }}
+            style={{ width: '100%', height: 150, borderRadius: 15 }}
+          />
+          {file ? (
+            <Button
+              icon="delete"
+              textColor="red"
+              style={{ marginTop: 8 }}
+              onPress={() => setFile(null)}
+            >
+              Remove
+            </Button>
+          ) : null}
+        </Dialog.ScrollArea>
+
+        <View style={{ marginVertical: 8 }} />
+        <Dialog.Actions>
+          <Button
+            mode="contained-tonal"
+            style={{ marginVertical: 4, backgroundColor: 'red' }}
+            textColor="white"
+            onPress={() => setShowDeleteModal(true)}
+          >
+            Delete
+          </Button>
+          <Button
+            mode="contained-tonal"
+            style={{ marginVertical: 4 }}
+            onPress={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            style={{ marginVertical: 4 }}
+            onPress={confirm}
+          >
+            Update
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+      <ConfirmDeleteRewardModal
+        visible={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onOK={() => {
+          setShowDeleteModal(false)
+          onOK()
+        }}
+        itemId={mainData ? mainData.key : ''}
+      />
+    </Portal>
+  )
+}
+
+export function ConfirmDeleteRewardModal({ visible, onCancel, onOK, itemId }) {
+  const confirm = () => {
+    deleteItemDocument(itemId)
+    onOK()
+  }
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={onCancel}>
+        <Dialog.Icon icon="delete" size={48} />
+        <Dialog.Title>Delete this item</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">
+            Do you want to delete this item?
+          </Text>
+          <Text variant="bodyMedium">key: {itemId}</Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={onCancel}>Cancel</Button>
+          <Button onPress={confirm} mode="contained" textColor="white" style={{ backgroundColor: 'red' }}>
+            Delete
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  )
+}
+
 //? Utils
 
 function areTimeDurationsOverlapping(
@@ -811,6 +1108,17 @@ function areTimeDurationsOverlapping(
 
   // Check for overlap
   return startA < endB && startB < endA
+}
+
+async function uploadFile(file) {
+  const splittedPath = file.uri.split('/')
+  const fileName = splittedPath[splittedPath.length - 1]
+  const extension = fileName.split('.')[1]
+
+  const filePath = file.uri
+  const uploadPath = '/subjects/' + new Date().getTime() + '.' + extension
+
+  return await uploadFileToStorage(filePath, uploadPath)
 }
 
 const styles = StyleSheet.create({
