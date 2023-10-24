@@ -2,8 +2,9 @@ import { FIRESTORE_DB } from "config/firebase";
 import {
   FieldValue,
   addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc,
-  getDocs, increment, onSnapshot, orderBy, query, setDoc, updateDoc, where,
+  getDocs, increment, onSnapshot, orderBy, query, setDoc, updateDoc, where, writeBatch,
 } from "firebase/firestore";
+import { deleteFileFromStorage } from "./fb_storage";
 
 export const checkAdmin = userId => {
   getDoc(doc(FIRESTORE_DB, 'user', userId)).then(doc => {
@@ -61,8 +62,23 @@ export const addSubjectDocument = data => {
   addDoc(collection(FIRESTORE_DB, 'subject'), data)
 }
 
-export const deleteSubjectDocument = docId => {
-  deleteDoc(doc(FIRESTORE_DB, 'subject', docId))
+export const deleteSubjectDocument = subjectId => {
+  const subjectDoc = doc(FIRESTORE_DB, 'subject', subjectId)
+  const assignmentDoc = query(
+    collection(FIRESTORE_DB, 'assignment'),
+    where('subjectId', '==', subjectId)
+  )
+
+  getDoc(subjectDoc).then(snap => {
+    const data = snap.data()
+    deleteFileFromStorage(data.image)
+    deleteDoc(subjectDoc).then(() => console.log('Subject deleted.'))
+  })
+  getDocs(assignmentDoc).then(snap => {
+    const batch = writeBatch(FIRESTORE_DB)
+    snap.forEach(doc => batch.delete(doc.ref))
+    return batch.commit()
+  })
 }
 
 export const addTimetable = (subjectId, day, startTime, endTime) => {
