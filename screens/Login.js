@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { StyleSheet, Image, View, Button, Alert } from "react-native";
-import { Text, TextInput } from 'react-native-paper'
+import { StyleSheet, Image, View, Alert } from "react-native";
+import { Text, TextInput, Button } from 'react-native-paper'
 import { ActivityIndicator, MD3Colors } from "react-native-paper";
 import { FIREBASE_AUTH } from "config/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
@@ -11,6 +11,8 @@ import { saveUser } from 'config/redux'
 import Icon from '../assets/icon.png'
 
 export default function Login() {
+  const [register, setRegister] = useState(false)
+
   const [email, setEmail] = useState('baszaa1234@gmail.com')
   const [password, setPassword] = useState('123456')
   const [loading, setLoading] = useState(false)
@@ -26,7 +28,7 @@ export default function Login() {
       console.log('Login successful:', res)
     } catch (err) {
       console.log(err)
-      Alert.alert('Error', 'Please check your email and password, and try again.')
+      Alert.alert('Error', printError(err.code) + '\nPlease try again later.')
     } finally {
       setLoading(false)
     }
@@ -39,13 +41,32 @@ export default function Login() {
       console.log(res)
     } catch (err) {
       console.log(err)
-      Alert.alert('Error', 'Please check your email and password, and try again.')
+      Alert.alert('Error', printError(err.code) + '\nPlease try again later.')
     } finally {
       setLoading(false)
     }
   }
 
-  return (
+  const printError = code => {
+    switch (code) {
+      case 'auth/invalid-login-credentials':
+        return 'Email and/or password is wrong.'
+      case 'auth/invalid-password':
+        return 'Email and/or password is wrong.'
+      case 'auth/invalid-email':
+        return 'Email and/or password is wrong.'
+      case 'auth/email-already-exists':
+        return 'This email is already in use.'
+      case 'auth/email-already-in-use':
+        return 'This email is already in use.'
+      case 'auth/weak-password':
+        return 'This password is weak.'
+      default:
+        return code
+    }
+  }
+
+  return register ? (
     <View style={styles.container}>
       <Image source={Icon} style={styles.icon} />
       <Text variant="displayMedium" style={{ fontWeight: 'bold' }}>
@@ -69,23 +90,66 @@ export default function Login() {
         secureTextEntry={true}
       />
       {loading ? (
-        <ActivityIndicator size="large" color={MD3Colors.primary50} style={{ margin: 16 }} />
+        <ActivityIndicator
+          size="large"
+          color={MD3Colors.primary50}
+          style={{ margin: 16 }}
+        />
       ) : (
         <>
           <View style={styles.button}>
-            <Button
-              title="Login"
-              onPress={signIn}
-              color={MD3Colors.primary50}
-            />
+            <Button onPress={signIn} mode="contained">
+              Login
+            </Button>
           </View>
           <View style={styles.button}>
-            <Button
-              title="Register"
-              onPress={signUp}
-              color={MD3Colors.primary50}
-              disabled={true}
-          />
+            <Button onPress={signUp} mode="contained-tonal">
+              Register
+            </Button>
+          </View>
+        </>
+      )}
+    </View>
+  ) : (
+    <View style={styles.container}>
+      <Image source={Icon} style={styles.icon} />
+      <Text variant="displayMedium" style={{ fontWeight: 'bold' }}>
+        Hello.
+      </Text>
+      <TextInput
+        mode="outlined"
+        label="Email"
+        style={styles.input}
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        mode="outlined"
+        label="Password"
+        style={styles.input}
+        autoCapitalize="none"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={true}
+      />
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color={MD3Colors.primary50}
+          style={{ margin: 16 }}
+        />
+      ) : (
+        <>
+          <View style={styles.button}>
+            <Button onPress={signIn} mode="contained">
+              Login
+            </Button>
+          </View>
+          <View style={styles.button}>
+            <Button onPress={signUp} mode="contained-tonal">
+              Register
+            </Button>
           </View>
         </>
       )}

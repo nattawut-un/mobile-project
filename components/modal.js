@@ -50,7 +50,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [points, setPoints] = useState(0)
+  const [points, setPoints] = useState('')
 
   const isTextBlank = () => title.length <= 0
 
@@ -68,7 +68,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
       subjectId: list && selectedSubject.length == 0 ? list[0].key : selectedSubject,
       finished: false,
-      points: parseInt(points)
+      points: parseInt(points) ?? '0'
     }
     onOK(document)
 
@@ -79,7 +79,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
     setTitle('')
     setDescription('')
     setDate(new Date())
-    setPoints(0)
+    setPoints('')
   }
 
   const [selectedSubject, setSelectedSubject] = useState("")

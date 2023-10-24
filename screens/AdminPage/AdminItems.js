@@ -80,7 +80,6 @@ export default function AdminItems({ navigation }) {
   const showEditModal= () => setVisibleModalEditItem(true)
   const hideEditModal= () => setVisibleModalEditItem(false)
 
-
   // Modal: Add Item
   const [visibleModalAddItem, setVisibleModalAddItem] = useState(false)
   const showModal = () => setVisibleModalAddItem(true)

@@ -51,7 +51,7 @@ export default RewardHistory = ({ navigation }) => {
                 <Chip
                   icon='basket'
                   style={{ ...styles.chip, backgroundColor: MD3Colors.primary90 }}
-                  onPress={() => navigation.navigate('RewardQRCode')}
+                  onPress={() => navigation.navigate('RewardQRCode', { item })}
                   >
                   Redeem
                 </Chip>
