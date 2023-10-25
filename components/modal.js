@@ -886,7 +886,7 @@ export function AssignmentDetailModal({ visible, onDismiss, data }) {
           onDismiss()
         }}
         assignmentId={mainData.key}
-        point={mainData.points}
+        point={isOnTime(mainData.dueDate) ? mainData.points : 0}
         userId={mainData.ownerUID}
       />
     </Portal>
@@ -909,6 +909,7 @@ export function ConfirmFinishAssignmentModal({ visible, onCancel, onOK, assignme
             Do you want to mark this assignment as finished?
           </Text>
           <Text variant="bodyMedium">key: {assignmentId}</Text>
+          <Text variant="bodyMedium">point: {point}</Text>
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onCancel}>Cancel</Button>
@@ -1261,6 +1262,15 @@ async function uploadFile(file, folder) {
   const uploadPath = '/' + folder + '/' + new Date().getTime() + '.' + extension
 
   return await uploadFileToStorage(filePath, uploadPath)
+}
+
+function isOnTime(dueTime) {
+  if (!dueTime) return false
+  if (!('seconds' in dueTime)) return false
+  const due = dayjs(new Timestamp(dueTime.seconds, 0).toDate()).unix()
+  const now = dayjs().unix()
+
+  return due > now
 }
 
 const styles = StyleSheet.create({

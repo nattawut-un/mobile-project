@@ -1,16 +1,17 @@
-import { View, ScrollView, StyleSheet, SafeAreaView, Image } from 'react-native'
+import { View, ScrollView, StyleSheet, Image } from 'react-native'
 import { useEffect, useState } from 'react'
-import { Text, Appbar, ActivityIndicator, MD3Colors, Chip, Divider } from 'react-native-paper'
+import { Text, MD3Colors, Chip, Divider } from 'react-native-paper'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
 import { DAYS } from 'constants'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import ListCard from 'components/ListCard'
 import { getAssignmentsCollection, getSubjectDocument } from 'services/firestore'
-import { onSnapshot } from 'firebase/firestore'
+import { Timestamp, onSnapshot } from 'firebase/firestore'
 import _ from 'lodash'
 import { ConfirmFinishAssignmentModal } from 'components/modal'
+import dayjs from 'dayjs'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -139,6 +140,7 @@ function SubjectInfoHomework({ navigation, route }) {
   const [assignmentId, setAssignmentId] = useState(null)
   const [assignmentPoint, setAssignmentPoint] = useState(null)
   const [userId, setUserId] = useState(null)
+  const [date, setDate] = useState(null)
 
   return (
     <>
@@ -146,35 +148,42 @@ function SubjectInfoHomework({ navigation, route }) {
         {assignments
           ? assignments.map(
               ({ key, title, description, dueDate, points, finished }) => (
-                <ListCard
-                  key={key}
-                  title={title}
-                  icon={
-                    <MaterialIcons
-                      name="info"
-                      size={40}
-                      color={MD3Colors.primary50}
-                    />
-                  }
-                >
-                  <Text variant="bodySmall">11 Oct, 2023 - 22:00:01</Text>
-                  <Text variant="bodySmall">{points} points</Text>
-                  <Divider style={{ marginVertical: 8 }} />
-                  <Text variant="labelMedium">Description</Text>
-                  <Text style={{ marginBottom: 8 }}>{description}</Text>
-                  {finished ? (
-                    <ChipFinished />
-                  ) : (
-                    <ChipUnfinished
-                      onPress={() => {
-                        setAssignmentId(key)
-                        setAssignmentPoint(points)
-                        setShowConfirmModal(true)
-                        setUserId(user ? user.uid : '')
-                      }}
-                    />
-                  )}
-                </ListCard>
+                <>
+                  <ListCard
+                    key={key}
+                    title={title}
+                    icon={
+                      <MaterialIcons
+                        name="info"
+                        size={40}
+                        color={MD3Colors.primary50}
+                      />
+                    }
+                  >
+                    <Text variant="bodySmall">
+                      {dayjs(new Timestamp(dueDate.seconds, 0).toDate()).format(
+                        'HH:mm - MMMM DD, YYYY'
+                      )}
+                    </Text>
+                    <Text variant="bodySmall">{points} points</Text>
+                    <Divider style={{ marginVertical: 8 }} />
+                    <Text variant="labelMedium">Description</Text>
+                    <Text style={{ marginBottom: 8 }}>{description}</Text>
+                    {finished ? (
+                      <ChipFinished />
+                    ) : (
+                      <ChipUnfinished
+                        onPress={() => {
+                          setAssignmentId(key)
+                          setAssignmentPoint(points)
+                          setUserId(user ? user.uid : '')
+                          setDate(dueDate)
+                          setShowConfirmModal(true)
+                        }}
+                      />
+                    )}
+                  </ListCard>
+                </>
               )
             )
           : null}
@@ -184,7 +193,7 @@ function SubjectInfoHomework({ navigation, route }) {
         onCancel={() => setShowConfirmModal(false)}
         onOK={() => setShowConfirmModal(false)}
         assignmentId={assignmentId}
-        point={assignmentPoint}
+        point={isOnTime(date) ? assignmentPoint : 0}
         userId={userId}
       />
     </>
@@ -203,17 +212,14 @@ const ChipUnfinished = ({ onPress }) => (
   </Chip>
 )
 
-// function SubjectInfoHomework({ navigation, route }) {
-//   const { subject } = route.params
+function isOnTime(dueTime) {
+  if (!dueTime) return false
+  if (!('seconds' in dueTime)) return false
+  const due = dayjs(new Timestamp(dueTime.seconds, 0).toDate()).unix()
+  const now = dayjs().unix()
 
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <ActivityIndicator animating={true} size="large" />
-//       <View style={{ marginVertical: 4 }} />
-//       <Text variant="bodyMedium">{subject.title}</Text>
-//     </View>
-//   )
-// }
+  return due > now
+}
 
 const styles = StyleSheet.create({
   container: {
