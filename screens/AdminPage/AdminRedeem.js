@@ -1,21 +1,9 @@
-import { StyleSheet, View, Image } from 'react-native'
-import {
-  Portal,
-  PaperProvider,
-  Text,
-  Appbar,
-  MD3Colors,
-  Chip,
-  Button,
-  Divider,
-} from 'react-native-paper'
-import React from 'react'
+import { StyleSheet, View, Image, Alert } from 'react-native'
+import { Text, Button, Divider } from 'react-native-paper'
 import { getRedeemDocument, markAsRedeem } from 'services/firestore'
 import { useEffect } from 'react'
 import { onSnapshot } from 'firebase/firestore'
 import { useState } from 'react'
-
-// import ItemImage from 'assets/1f4f7.jpg'
 
 const AdminRedeem = ({ navigation, route }) => {
   const data = route.params.item
@@ -24,7 +12,12 @@ const AdminRedeem = ({ navigation, route }) => {
   const redeemDocument = getRedeemDocument(data.key)
   useEffect(() => {
     const unsub = onSnapshot(redeemDocument, { next: snap => {
-      setItemInfo(snap.data())
+      const data = snap.data()
+      if (data.finished) {
+        Alert.alert('Error', 'The redeem has already been claimed.')
+        navigation.navigate('AdminScanQR')
+      }
+      setItemInfo(data)
     } })
     return () => unsub()
   }, [])
@@ -41,20 +34,10 @@ const AdminRedeem = ({ navigation, route }) => {
         <Text variant="headlineLarge">{itemInfo.title}</Text>
       </View>
       <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-        {/* <Text>99 $, Remaining: 2</Text> */}
-        {/* <Text>{JSON.stringify(itemInfo)}</Text> */}
         <Text>Redeem ID: {data.key}</Text>
       </View>
       <Divider style={{ marginVertical: 8, width: '97%' }} />
-      {/* <View style={styles.infomation}>
-        <Text style={styles.detailuser}>User: Firstname Lastname</Text>
-        <Text style={styles.detailuser}>Redeem ID: asdf123456</Text>
-      </View>
-      <View style={styles.infomation}>
-        <Text style={styles.pointinfo}>Points to use: 99 $</Text>
-      </View> */}
-      {/* <Text>{JSON.stringify(data)}</Text> */}
-      <Text variant='headlineMedium' style={{ padding: 16 }}>Mark as redeem now?</Text>
+      <Text variant='headlineSmall' style={{ padding: 16 }}>Mark as redeem now?</Text>
       <View
         style={{ position: 'absolute', width: '100%', bottom: 0, padding: 16 }}
       >
