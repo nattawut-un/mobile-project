@@ -104,9 +104,15 @@ function Homepage({ navigation }) {
               <ListCard
                 key={item}
                 title={item.title}
-                description={subjects.find(subj => subj.key == item.subjectId).title}
+                description={getSubjectName(subjects, item.subjectId)}
                 date={item.dueDate.seconds ?? null}
-                icon={<MaterialCommunityIcons name="calendar" size={36} color={MD3Colors.primary50} />}
+                icon={
+                  <MaterialCommunityIcons
+                    name="calendar"
+                    size={36}
+                    color={MD3Colors.primary50}
+                  />
+                }
                 onPress={() => showModal(item)}
               />
             )}
@@ -136,7 +142,10 @@ function Homepage({ navigation }) {
         list={subjects}
       />
       <AssigmentDetailModal
-        data={{ ...assignmentData, subject: subjects ? subjects.filter(item => item.key == assignmentData.subjectId)[0] : null }}
+        data={{
+          ...assignmentData,
+          subject: getSubjectName(subjects, assignmentData.subjectId)
+        }}
         visible={showAssignmentDetails}
         onDismiss={() => setShowAssignmentDetails(false)}
       />
@@ -235,6 +244,15 @@ export function HomeFAB(props) {
       }}
     />
   )
+}
+
+function getSubjectName(subject, id) {
+  if (!subject) return '...'
+
+  const subjectItem = subject.find(subj => subj.key == id)
+  if (!subjectItem) return '...'
+  if (!('title' in subjectItem)) return '...'
+  return subjectItem.title
 }
 
 const styles = StyleSheet.create({

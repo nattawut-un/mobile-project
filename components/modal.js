@@ -10,6 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import { uploadFileToStorage } from "services/fb_storage";
 import { addItemDocument, addTimetable, deleteAssignmentDocument, deleteItemDocument, deleteSubjectDocument, deleteTimetable, markAssignmentAsFinished, saveAssignmentDocument, updateItemDocument } from "services/firestore";
 import { DAYS } from "constants";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export function LogoutModal({ visible, onCancel, onOK }) {
   return (
@@ -718,9 +719,9 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
                   .format('MMMM DD, YYYY - HH:mm')}
               </Text>
             ) : null}
-            {/* <Text variant="titleMedium" style={{ color: 'white' }}>
-              Subject: {mainData ? mainData.subject.title : ''}
-            </Text> */}
+            <Text variant="titleSmall" style={{ color: 'white' }}>
+              <MaterialCommunityIcons name="bookmark" /> {mainData ? mainData.subject : ''}
+            </Text>
           </View>
           <View style={{ ...styles.modalContainer, ...styles.bottom }}>
             <Text variant="labelSmall">Description</Text>
