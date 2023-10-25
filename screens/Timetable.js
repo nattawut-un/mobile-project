@@ -100,7 +100,10 @@ function TimetablePage() {
       />
       <AddTimetableModal
         visible={showAddTimetableModal}
-        onCancel={() => setShowAddTimetableModal(false)}
+        onCancel={() => {
+          if (subjects.length <= 0) return Alert.alert('Error', 'You have no subject.')
+          setShowAddTimetableModal(false)
+        }}
         onOK={() => setShowAddTimetableModal(false)}
         subjectList={subjects}
         timetableList={timetableList}

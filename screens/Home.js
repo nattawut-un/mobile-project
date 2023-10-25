@@ -129,12 +129,6 @@ function Homepage({ navigation }) {
         onCancel={() => setShowAddSubjectModal(false)}
         onOK={addSubject}
       />
-      {/* <AddTimetableModal
-        visible={showAddTimetableModal}
-        onCancel={() => setShowAddTimetableModal(false)}
-        onOK={() => setShowAddTimetableModal(false)}
-        list={subjects}
-      /> */}
       <AddAssignmentModal
         visible={showAddAssignmentModal}
         onCancel={() => setShowAddAssignmentModal(false)}
@@ -208,7 +202,7 @@ function Clock() {
   )
 }
 
-export function HomeFAB(props) {
+function HomeFAB(props) {
   const [open, setOpen] = useState(false)
   const onStateChange = () => setOpen(!open)
 

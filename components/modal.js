@@ -453,15 +453,21 @@ export function DeleteSubjectMobal({ visible, onCancel, onOK, subjectId }) {
 }
 
 export function AddTimetableModal({ visible, onCancel, onOK, subjectList, timetableList }) {
-  const [subject, setSubject] = useState()
+  const [subject, setSubject] = useState('')
   const [selectedDay, setSelectedDay] = useState(1)
   const [startHour, setStartHour] = useState('00')
   const [startMin, setStartMin] = useState('00')
   const [endHour, setEndHour] = useState('00')
   const [endMin, setEndMin] = useState('00')
 
+  useEffect(() => {
+    if (subjectList.length > 0) {
+      resetInput()
+    }
+  }, [subjectList])
+
   const pressCancel = () => {
-    clearInput()
+    resetInput()
     onCancel()
   }
 
@@ -493,11 +499,13 @@ export function AddTimetableModal({ visible, onCancel, onOK, subjectList, timeta
     console.log(subject, selectedDay, startTime, endTime)
     addTimetable(subject, selectedDay, startTime, endTime)
 
-    clearInput()
+    resetInput()
     onOK()
   }
 
-  const clearInput = () => {
+  const resetInput = () => {
+    setSubject(subjectList[0].key)
+    setSelectedDay(1)
     setStartHour('0')
     setEndHour('0')
     setStartMin('0')
@@ -871,9 +879,12 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
       <ConfirmFinishAssignmentModal
         visible={showConfirmModal}
         onCancel={() => setShowConfirmModal(false)}
-        onOK={() => setShowConfirmModal(false)}
+        onOK={() => {
+          setShowConfirmModal(false)
+          onDismiss()
+        }}
         assignmentId={mainData.key}
-        point={mainData.point}
+        point={mainData.points}
         userId={mainData.ownerUID}
       />
     </Portal>

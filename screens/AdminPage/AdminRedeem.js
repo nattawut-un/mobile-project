@@ -4,9 +4,11 @@ import { getRedeemDocument, markAsRedeem } from 'services/firestore'
 import { useEffect } from 'react'
 import { onSnapshot } from 'firebase/firestore'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
 
 const AdminRedeem = ({ navigation, route }) => {
   const data = route.params.item
+  const user = useSelector(state => state.user.user)
 
   const [itemInfo, setItemInfo] = useState({})
   const redeemDocument = getRedeemDocument(data.key)
@@ -15,6 +17,10 @@ const AdminRedeem = ({ navigation, route }) => {
       const data = snap.data()
       if (data.finished) {
         Alert.alert('Error', 'The redeem has already been claimed.')
+        navigation.navigate('AdminScanQR')
+      }
+      if (data.ownerId != user.uid) {
+        Alert.alert('Error', 'The redeem code is invalid.')
         navigation.navigate('AdminScanQR')
       }
       setItemInfo(data)
