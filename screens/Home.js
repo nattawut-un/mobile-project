@@ -33,7 +33,7 @@ function Homepage({ navigation }) {
 
     const now = new Date()
     const unfinishedData = data.filter(
-      item => now < new Timestamp(item.dueDate.seconds, item.dueDate.nanoseconds).toDate()
+      item => !item.finished
     )
     const sortedData = _.sortBy(unfinishedData, item => item.dueDate.seconds)
     setAssignments(sortedData)
@@ -104,7 +104,7 @@ function Homepage({ navigation }) {
               <ListCard
                 key={item}
                 title={item.title}
-                description={item.description}
+                description={subjects.find(subj => subj.key == item.subjectId).title}
                 date={item.dueDate.seconds ?? null}
                 icon={<MaterialCommunityIcons name="calendar" size={36} color={MD3Colors.primary50} />}
                 onPress={() => showModal(item)}

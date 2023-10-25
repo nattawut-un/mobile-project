@@ -75,6 +75,11 @@ export default function AdminItems({ navigation }) {
     return () => unsub()
   }, [])
 
+  const [sortedList, setSortedList] = useState([])
+  useEffect(() => {
+    setSortedList(itemList.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())))
+  }, [searchQuery])
+
   const [selectedItem, setSelectedItem] = useState({})
 
   return (
@@ -96,7 +101,7 @@ export default function AdminItems({ navigation }) {
           />
         </View>
         <FlatList
-          data={itemList}
+          data={sortedList}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {

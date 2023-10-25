@@ -9,13 +9,11 @@ import {
 } from 'react-native-paper'
 import { useSelector } from 'react-redux'
 import { getUserRedeemsCollection } from 'services/firestore'
-import { useEffect } from 'react'
-
+import { useState, useEffect } from 'react'
 import ListCard from 'components/ListCard'
-import TestImage from 'assets/icon.png'
 import { Timestamp, onSnapshot } from 'firebase/firestore'
-import { useState } from 'react'
 import dayjs from 'dayjs'
+import _ from 'lodash'
 
 export default RewardHistory = ({ navigation }) => {
   const user = useSelector(state => state.user.user)
@@ -29,7 +27,8 @@ export default RewardHistory = ({ navigation }) => {
         const fields = res.data()
         data.push({ key: res.id, ...fields })
       })
-      setHistory(data)
+      const sortedData = _.reverse(_.sortBy(data, item => item.redeemTime.seconds))
+      setHistory(sortedData)
     }})
   return () => unsub()
   }, [])
