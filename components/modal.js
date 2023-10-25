@@ -948,70 +948,72 @@ export function AddRewardModal({ visible, onCancel, onOK, userId }) {
       <Dialog visible={visible} onDismiss={onCancel}>
         <Dialog.Title>Add item...</Dialog.Title>
         <Dialog.ScrollArea>
-          <TextInput
-            label="Title"
-            mode="outlined"
-            value={title}
-            onChangeText={setTitle}
-            style={styles.textInput}
-          />
-          <TextInput
-            label="Description"
-            mode="outlined"
-            value={description}
-            onChangeText={setDescription}
-            style={{ ...styles.textInput, height: null }}
-            multiline
-            numberOfLines={3}
-          />
-          <TextInput
-            label="Price"
-            mode="outlined"
-            value={point}
-            onChangeText={setPoint}
-            style={styles.textInput}
-          />
-          <TextInput
-            label="Remaining"
-            mode="outlined"
-            value={remaining}
-            onChangeText={setRemaining}
-            style={styles.textInput}
-          />
-          <Button
-            style={{ marginVertical: 8 }}
-            // icon={'file-outline'}
-            icon={file ? 'file' : 'file-outline'}
-            mode="contained"
-            onPress={async () => {
-              const res = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [16, 9],
-                quality: 1,
-              })
-              console.log(res)
-              if (!res.canceled) setFile(res.assets[0])
-            }}
-          >
-            {file ? 'Image added' : 'Select File'}
-          </Button>
-          {file ? (
-            <Image
-              source={{ uri: file.uri }}
-              style={{ width: '100%', height: 150, borderRadius: 15 }}
+          <ScrollView>
+            <TextInput
+              label="Title"
+              mode="outlined"
+              value={title}
+              onChangeText={setTitle}
+              style={styles.textInput}
             />
-          ) : null}
-          {file ? (
+            <TextInput
+              label="Description"
+              mode="outlined"
+              value={description}
+              onChangeText={setDescription}
+              style={{ ...styles.textInput, height: null }}
+              multiline
+              numberOfLines={3}
+            />
+            <TextInput
+              label="Price"
+              mode="outlined"
+              value={point}
+              onChangeText={setPoint}
+              style={styles.textInput}
+            />
+            <TextInput
+              label="Remaining"
+              mode="outlined"
+              value={remaining}
+              onChangeText={setRemaining}
+              style={styles.textInput}
+            />
             <Button
-              icon="delete"
-              textColor="red"
-              style={{ marginTop: 8 }}
-              onPress={() => setFile(null)}
+              style={{ marginVertical: 8 }}
+              // icon={'file-outline'}
+              icon={file ? 'file' : 'file-outline'}
+              mode="contained"
+              onPress={async () => {
+                const res = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.All,
+                  allowsEditing: true,
+                  aspect: [16, 9],
+                  quality: 1,
+                })
+                console.log(res)
+                if (!res.canceled) setFile(res.assets[0])
+              }}
             >
-              Remove
+              {file ? 'Image added' : 'Select File'}
             </Button>
-          ) : null}
+            {file ? (
+              <Image
+                source={{ uri: file.uri }}
+                style={{ width: '100%', height: 150, borderRadius: 15 }}
+              />
+            ) : null}
+            {file ? (
+              <Button
+                icon="delete"
+                textColor="red"
+                style={{ marginTop: 8 }}
+                onPress={() => setFile(null)}
+              >
+                Remove
+              </Button>
+            ) : null}
+          </ScrollView>
         </Dialog.ScrollArea>
 
         <View style={{ marginVertical: 8 }} />
@@ -1081,68 +1083,70 @@ export function EditRewardModal({ visible, onCancel, onOK, item }) {
       <Dialog visible={visible} onDismiss={onCancel}>
         <Dialog.Title>Edit item...</Dialog.Title>
         <Dialog.ScrollArea>
-          <TextInput
-            label="Title"
-            mode="outlined"
-            value={title}
-            onChangeText={setTitle}
-            style={styles.textInput}
-          />
-          <TextInput
-            label="Description"
-            mode="outlined"
-            value={description}
-            onChangeText={setDescription}
-            style={{ ...styles.textInput, height: null }}
-            multiline
-            numberOfLines={3}
-          />
-          <TextInput
-            label="Price"
-            mode="outlined"
-            value={point}
-            onChangeText={setPoint}
-            style={styles.textInput}
-          />
-          <TextInput
-            label="Remaining"
-            mode="outlined"
-            value={remaining}
-            onChangeText={setRemaining}
-            style={styles.textInput}
-          />
-          <Button
-            style={{ marginVertical: 8 }}
-            // icon={'file-outline'}
-            icon={file ? 'file' : 'file-outline'}
-            mode="contained"
-            onPress={async () => {
-              const res = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.All,
-                allowsEditing: true,
-                aspect: [16, 9],
-                quality: 1,
-              })
-              console.log(res)
-              if (!res.canceled) setFile(res.assets[0])
-            }}
-          >
-            {file ? 'Image added' : 'Select File'}
-          </Button>
-          <Image
-            source={{ uri: file ? file.uri : mainData.image }}
-            style={{ width: '100%', height: 150, borderRadius: 15 }}
-          />
-          {file ? (
+          <ScrollView>
+            <TextInput
+              label="Title"
+              mode="outlined"
+              value={title}
+              onChangeText={setTitle}
+              style={styles.textInput}
+            />
+            <TextInput
+              label="Description"
+              mode="outlined"
+              value={description}
+              onChangeText={setDescription}
+              style={{ ...styles.textInput, height: null }}
+              multiline
+              numberOfLines={3}
+            />
+            <TextInput
+              label="Price"
+              mode="outlined"
+              value={point}
+              onChangeText={setPoint}
+              style={styles.textInput}
+            />
+            <TextInput
+              label="Remaining"
+              mode="outlined"
+              value={remaining}
+              onChangeText={setRemaining}
+              style={styles.textInput}
+            />
             <Button
-              icon="delete"
-              textColor="red"
-              style={{ marginTop: 8 }}
-              onPress={() => setFile(null)}
+              style={{ marginVertical: 8 }}
+              // icon={'file-outline'}
+              icon={file ? 'file' : 'file-outline'}
+              mode="contained"
+              onPress={async () => {
+                const res = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.All,
+                  allowsEditing: true,
+                  aspect: [16, 9],
+                  quality: 1,
+                })
+                console.log(res)
+                if (!res.canceled) setFile(res.assets[0])
+              }}
             >
-              Remove
+              {file ? 'Image added' : 'Select File'}
             </Button>
-          ) : null}
+            <Image
+              source={{ uri: file ? file.uri : mainData.image }}
+              style={{ width: '100%', height: 150, borderRadius: 15 }}
+            />
+            {file ? (
+              <Button
+                icon="delete"
+                textColor="red"
+                style={{ marginTop: 8 }}
+                onPress={() => setFile(null)}
+              >
+                Remove
+              </Button>
+            ) : null}
+          </ScrollView>
         </Dialog.ScrollArea>
 
         <View style={{ marginVertical: 8 }} />
