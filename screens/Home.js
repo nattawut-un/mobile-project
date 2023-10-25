@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View, FlatList } from 'react-native';
+import { StyleSheet, ScrollView, View, FlatList, Alert } from 'react-native';
 import { Portal, PaperProvider, Text, Appbar, MD3Colors, FAB } from 'react-native-paper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
@@ -92,6 +92,48 @@ function Homepage({ navigation }) {
     const unsub = onSnapshot(subjectsQuery, { next: getSubject })
     return () => unsub()
   }, [])
+
+  function HomeFAB(props) {
+    const [open, setOpen] = useState(false)
+    const onStateChange = () => setOpen(!open)
+
+    const { assignmentFunction, timetableFunction, subjectFunction } = props
+
+    return (
+      <FAB.Group
+        open={open}
+        visible
+        icon={open ? 'arrow-down' : 'plus'}
+        actions={[
+          {
+            icon: 'bookmark',
+            label: 'Subject',
+            onPress: () => subjectFunction(true),
+          },
+          // {
+          //   icon: 'table',
+          //   label: 'Timetable',
+          //   onPress: () => timetableFunction(true),
+          // },
+          {
+            icon: 'book',
+            label: 'Assignment',
+            onPress: () => {
+              if (subjects.length <= 0)
+                return Alert.alert("You don't have any subject.")
+              assignmentFunction(true)
+            },
+          },
+        ]}
+        onStateChange={onStateChange}
+        onPress={() => {
+          if (open) {
+            // do something if the speed dial is open
+          }
+        }}
+      />
+    )
+  }
 
   return (
     <>
@@ -199,44 +241,6 @@ function Clock() {
         {date.format('dddd, MMMM D, YYYY')}
       </Text>
     </View>
-  )
-}
-
-function HomeFAB(props) {
-  const [open, setOpen] = useState(false)
-  const onStateChange = () => setOpen(!open)
-
-  const { assignmentFunction, timetableFunction, subjectFunction } = props
-
-  return (
-    <FAB.Group
-      open={open}
-      visible
-      icon={open ? 'arrow-down' : 'plus'}
-      actions={[
-        {
-          icon: 'bookmark',
-          label: 'Subject',
-          onPress: () => subjectFunction(true),
-        },
-        // {
-        //   icon: 'table',
-        //   label: 'Timetable',
-        //   onPress: () => timetableFunction(true),
-        // },
-        {
-          icon: 'book',
-          label: 'Assignment',
-          onPress: () => assignmentFunction(true),
-        },
-      ]}
-      onStateChange={onStateChange}
-      onPress={() => {
-        if (open) {
-          // do something if the speed dial is open
-        }
-      }}
-    />
   )
 }
 
