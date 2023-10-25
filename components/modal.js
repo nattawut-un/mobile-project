@@ -60,7 +60,9 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
   }
 
   const pressOK = () => {
-    if (isTextBlank()) return
+    if (!title || !date || !points || isNaN(points)) {
+      return Alert.alert('Error', 'The data is invalid.')
+    }
 
     var document = {
       title,
@@ -68,7 +70,7 @@ export function AddAssignmentModal({ visible, onCancel, onOK, list }) {
       dueDate: new Timestamp(Math.floor(new Date(date).getTime() / 1000), 0),
       subjectId: list && selectedSubject.length == 0 ? list[0].key : selectedSubject,
       finished: false,
-      points: parseInt(points) ?? '0'
+      points: parseInt(points) || '0'
     }
     onOK(document)
 
