@@ -133,7 +133,7 @@ export default function RewardHome({ navigation }) {
           <RewardList
             items={
               searchQuery
-                ? rewardList.filter(i => i.title.includes(searchQuery))
+                ? rewardList.filter(i => i.title.toLowerCase().includes(searchQuery.toLowerCase()))
                 : rewardList
             }
           />

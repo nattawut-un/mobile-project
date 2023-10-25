@@ -6,6 +6,12 @@ import {
 } from "firebase/firestore";
 import { deleteFileFromStorage } from "./fb_storage";
 
+export const addUser = (userId, name) => {
+  setDoc(doc(FIRESTORE_DB, 'user', userId), {
+    name, admin: false, point: 0
+  })
+}
+
 export const checkAdmin = userId => {
   getDoc(doc(FIRESTORE_DB, 'user', userId)).then(doc => {
     console.log(doc.data())
@@ -58,8 +64,16 @@ export const getSubjectsCollectionData = userId => {
   return data
 }
 
+export const getSubjectDocument = docId => {
+  return doc(FIRESTORE_DB, 'subject', docId)
+}
+
 export const addSubjectDocument = data => {
   addDoc(collection(FIRESTORE_DB, 'subject'), data)
+}
+
+export const updateSubjectDocument = (subjectId, data) => {
+  updateDoc(doc(FIRESTORE_DB, 'subject', subjectId), data)
 }
 
 export const deleteSubjectDocument = subjectId => {
@@ -104,17 +118,47 @@ export const getRewardsCollection = () => {
   return collection(FIRESTORE_DB, 'reward')
 }
 
+export const getItemsCollection = userId => {
+  return query(
+    collection(FIRESTORE_DB, 'reward'),
+    where('ownerUID', '==', userId)
+  )
+}
+
+export const addItemDocument = data => {
+  addDoc(collection(FIRESTORE_DB, 'reward'), data)
+}
+
+export const updateItemDocument = (itemId, data) => {
+  updateDoc(doc(FIRESTORE_DB, 'reward', itemId), data)
+}
+
+export const deleteItemDocument = itemId => {
+  deleteDoc(doc(FIRESTORE_DB, 'reward', itemId))
+}
+
 export const decrementRewardRemaining = rewardId => {
   updateDoc(doc(FIRESTORE_DB, 'reward', rewardId), {
     remaining: increment(-1),
   })
 }
 
-export const getRedeemsCollection = userId => {
+export const getUserRedeemsCollection = userId => {
   return query(
     collection(FIRESTORE_DB, 'redeem'),
     where('userId', '==', userId)
   )
+}
+
+export const getAdminRedeemsCollection = ownerId => {
+  return query(
+    collection(FIRESTORE_DB, 'redeem'),
+    where('ownerId', '==', ownerId)
+  )
+}
+
+export const getRedeemDocument = docId => {
+  return doc(FIRESTORE_DB, 'redeem', docId)
 }
 
 export const addRedeemDocument = data => {
@@ -127,6 +171,10 @@ export const decrementUserPoint = (userId, amount) => {
   updateDoc(doc(FIRESTORE_DB, 'user', userId), {
     point: increment(amount * -1)
   })
+}
+
+export const markAsRedeem = redeemId => {
+  updateDoc(doc(FIRESTORE_DB, 'redeem', redeemId), { finished: true })
 }
 
 // const col = collection(FIRESTORE_DB, 'assignment')

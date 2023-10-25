@@ -49,19 +49,6 @@ const bottomBarItems = [
     icons: ['pricetags-outline', 'pricetags'],
   },
 ]
-const colors = [
-  '#3A87AD',
-  '#B15C92',
-  '#F8A537',
-  '#72E66C',
-  '#D94F3C',
-  '#8E63A8',
-  '#5BC2E7',
-  '#FF9F55',
-  '#A1D05E',
-  '#E04E39',
-]
-
 
 function createBottomBarTabs() {
   let res = []
@@ -79,7 +66,6 @@ function createBottomBarTabs() {
               <Ionicons name={item.icons[0]} size={24} color={MD3Colors.primary90} />
             )
           },
-          tabBarColor: colors[item.name.length % 10],
           tabBarBadge: false,
         }}
       />

@@ -4,22 +4,18 @@ import { Text, TextInput, Button } from 'react-native-paper'
 import { ActivityIndicator, MD3Colors } from "react-native-paper";
 import { FIREBASE_AUTH } from "config/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { useSelector, useDispatch } from 'react-redux'
-
-import { saveUser } from 'config/redux'
 
 import Icon from '../assets/icon.png'
+import { addUser } from "services/firestore";
 
 export default function Login() {
   const [register, setRegister] = useState(false)
 
-  const [email, setEmail] = useState('baszaa1234@gmail.com')
-  const [password, setPassword] = useState('123456')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   const auth = FIREBASE_AUTH
-
-  const dispatch = useDispatch()
 
   const signIn = async () => {
     setLoading(true)
@@ -38,6 +34,7 @@ export default function Login() {
     setLoading(true)
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password)
+      addUser(res.user.uid, res.user.email.split('@')[0] ?? 'user' + new Date().getTime())
       console.log(res)
     } catch (err) {
       console.log(err)

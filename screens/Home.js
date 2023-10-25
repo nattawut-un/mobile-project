@@ -14,6 +14,7 @@ import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
 import { AddAssignmentModal, AddSubjectModal, AddTimetableModal, AssigmentDetailModal } from 'components/modal';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator()
 
@@ -32,7 +33,7 @@ function Homepage({ navigation }) {
 
     const now = new Date()
     const unfinishedData = data.filter(
-      item => now < new Timestamp(item.dueDate.seconds, item.dueDate.nanoseconds).toDate()
+      item => !item.finished
     )
     const sortedData = _.sortBy(unfinishedData, item => item.dueDate.seconds)
     setAssignments(sortedData)
@@ -103,9 +104,15 @@ function Homepage({ navigation }) {
               <ListCard
                 key={item}
                 title={item.title}
-                description={item.description}
+                description={getSubjectName(subjects, item.subjectId)}
                 date={item.dueDate.seconds ?? null}
-                image={TestImage}
+                icon={
+                  <MaterialCommunityIcons
+                    name="calendar"
+                    size={36}
+                    color={MD3Colors.primary50}
+                  />
+                }
                 onPress={() => showModal(item)}
               />
             )}
@@ -135,7 +142,10 @@ function Homepage({ navigation }) {
         list={subjects}
       />
       <AssigmentDetailModal
-        data={{ ...assignmentData, subject: subjects ? subjects.filter(item => item.key == assignmentData.subjectId)[0] : null }}
+        data={{
+          ...assignmentData,
+          subject: getSubjectName(subjects, assignmentData.subjectId)
+        }}
         visible={showAssignmentDetails}
         onDismiss={() => setShowAssignmentDetails(false)}
       />
@@ -234,6 +244,15 @@ export function HomeFAB(props) {
       }}
     />
   )
+}
+
+function getSubjectName(subject, id) {
+  if (!subject) return '...'
+
+  const subjectItem = subject.find(subj => subj.key == id)
+  if (!subjectItem) return '...'
+  if (!('title' in subjectItem)) return '...'
+  return subjectItem.title
 }
 
 const styles = StyleSheet.create({
