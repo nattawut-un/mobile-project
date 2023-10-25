@@ -333,7 +333,7 @@ export function EditSubjectModel({ visible, onCancel, onOK, data }) {
     var newData = { title, description, teacher }
 
     if (file) {
-      newData['image'] = await uploadFile(file)
+      newData['image'] = await uploadFile(file, 'subjects')
     }
 
     updateSubjectDocument(data.key, newData)
@@ -933,7 +933,7 @@ export function AddRewardModal({ visible, onCancel, onOK, userId }) {
       return Alert.alert('Error', 'Data is invalid.')
     }
 
-    const imageUri = await uploadFile(file)
+    const imageUri = await uploadFile(file, 'rewards')
     console.log(imageUri)
 
     const data = {
@@ -1075,7 +1075,7 @@ export function EditRewardModal({ visible, onCancel, onOK, item }) {
     }
 
     if (file) {
-      data['image'] = await uploadFile(file)
+      data['image'] = await uploadFile(file, 'rewards')
     }
 
     updateItemDocument(item.key, data)
@@ -1252,13 +1252,13 @@ function areTimeDurationsOverlapping(
   return startA < endB && startB < endA
 }
 
-async function uploadFile(file) {
+async function uploadFile(file, folder) {
   const splittedPath = file.uri.split('/')
   const fileName = splittedPath[splittedPath.length - 1]
   const extension = fileName.split('.')[1]
 
   const filePath = file.uri
-  const uploadPath = '/subjects/' + new Date().getTime() + '.' + extension
+  const uploadPath = '/' + folder + '/' + new Date().getTime() + '.' + extension
 
   return await uploadFileToStorage(filePath, uploadPath)
 }
