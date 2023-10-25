@@ -6,6 +6,12 @@ import {
 } from "firebase/firestore";
 import { deleteFileFromStorage } from "./fb_storage";
 
+export const addUser = (userId, name) => {
+  setDoc(doc(FIRESTORE_DB, 'user', userId), {
+    name, admin: false, point: 0
+  })
+}
+
 export const checkAdmin = userId => {
   getDoc(doc(FIRESTORE_DB, 'user', userId)).then(doc => {
     console.log(doc.data())
@@ -60,6 +66,10 @@ export const getSubjectsCollectionData = userId => {
 
 export const addSubjectDocument = data => {
   addDoc(collection(FIRESTORE_DB, 'subject'), data)
+}
+
+export const updateSubjectDocument = (subjectId, data) => {
+  updateDoc(doc(FIRESTORE_DB, 'subject', subjectId), data)
 }
 
 export const deleteSubjectDocument = subjectId => {
