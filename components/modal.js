@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 
 import { uploadFileToStorage } from "services/fb_storage";
-import { addItemDocument, addTimetable, deleteAssignmentDocument, deleteItemDocument, deleteSubjectDocument, deleteTimetable, markAssignmentAsFinished, saveAssignmentDocument, updateItemDocument } from "services/firestore";
+import { addItemDocument, addTimetable, deleteAssignmentDocument, deleteItemDocument, deleteSubjectDocument, deleteTimetable, markAssignmentAsFinished, saveAssignmentDocument, updateItemDocument, updateSubjectDocument } from "services/firestore";
 import { DAYS } from "constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -286,6 +286,118 @@ export function AddSubjectModal({ visible, onCancel, onOK }) {
                 style={{ width: '100%', height: 150, borderRadius: 15 }}
               />
             ) : null}
+            {file ? (
+              <Button
+                icon="delete"
+                textColor="red"
+                style={{ marginTop: 8 }}
+                onPress={() => setFile(null)}
+              >
+                Remove
+              </Button>
+            ) : null}
+          </ScrollView>
+        </Dialog.ScrollArea>
+        <Dialog.Actions>
+          <Button onPress={pressCancel}>Cancel</Button>
+          <Button onPress={pressOK} mode="contained">
+            Add
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  )
+}
+
+export function EditSubjectModel({ visible, onCancel, onOK, data }) {
+  const [mainData, setMainData] = useState({})
+  useEffect(() => setMainData(data), [data])
+  useEffect(() => resetInput(), [mainData])
+
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [teacher, setTeacher] = useState('')
+  const [file, setFile] = useState(null)
+
+  const pressCancel = () => {
+    onCancel()
+  }
+
+  const pressOK = async () => {
+    if (!title || !description || !teacher) {
+      return Alert.alert('Error', 'Data is invalid.')
+    }
+
+    var newData = { title, description, teacher }
+
+    if (file) {
+      newData['image'] = await uploadFile(file)
+    }
+
+    updateSubjectDocument(data.key, newData)
+    onOK()
+  }
+
+  const resetInput = () => {
+    setTitle(mainData.title)
+    setDescription(mainData.description)
+    setTeacher(mainData.teacher)
+    setFile(null)
+  }
+
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={pressCancel}>
+        <Dialog.Title>Edit Subject</Dialog.Title>
+        <Dialog.ScrollArea>
+          <ScrollView>
+            <TextInput
+              label="Title"
+              mode="outlined"
+              style={styles.textInput}
+              value={title}
+              onChangeText={setTitle}
+            />
+            {/* <HelperText type="error" visible={isTextBlank()}>
+              Title cannot be blank
+            </HelperText> */}
+            <TextInput
+              label="Teacher"
+              mode="outlined"
+              style={styles.textInput}
+              value={teacher}
+              onChangeText={setTeacher}
+            />
+            <TextInput
+              label="Description"
+              mode="outlined"
+              style={{ ...styles.textInput, height: null }}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={3}
+            />
+            <Button
+              style={{ marginVertical: 8 }}
+              icon={file ? 'file' : 'file-outline'}
+              mode="contained"
+              onPress={async () => {
+                const res = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.All,
+                  allowsEditing: true,
+                  aspect: [16, 9],
+                  quality: 1,
+                })
+                console.log(res)
+                if (!res.canceled) setFile(res.assets[0])
+              }}
+            >
+              {file ? 'Image added' : 'Select File'}
+            </Button>
+            <Image
+              source={{ uri: file ? file.uri : mainData.image }}
+              style={{ width: '100%', height: 150, borderRadius: 15 }}
+            />
             {file ? (
               <Button
                 icon="delete"

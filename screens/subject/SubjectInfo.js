@@ -3,19 +3,16 @@ import { useEffect, useState } from 'react'
 import { Text, Appbar, ActivityIndicator, MD3Colors, Chip, Divider } from 'react-native-paper'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'
-// import { getSubjectsCollection } from 'services/firestore'
 import { DAYS } from 'constants'
 import { useSelector, useDispatch } from 'react-redux'
 
 import ListCard from 'components/ListCard'
-import TestImage from 'assets/icon.png'
-import { getAssignmentsCollection } from 'services/firestore'
+import { getAssignmentsCollection, getSubjectDocument } from 'services/firestore'
 import { onSnapshot } from 'firebase/firestore'
 import _ from 'lodash'
 import { ConfirmFinishAssignmentModal } from 'components/modal'
 
 const Tab = createMaterialTopTabNavigator()
-// const subjectsCollection = getSubjectsCollection()
 
 export default function SubjectInfo({ navigation, route }) {
   const { subject } = route.params
@@ -51,7 +48,13 @@ export default function SubjectInfo({ navigation, route }) {
 }
 
 function SubjectInfoTab({ navigation, route }) {
-  const { subject } = route.params
+  const [subject, setSubject] = useState({})
+  const subjectDoc = getSubjectDocument(route.params.subject.key)
+  useEffect(() => {
+    onSnapshot(subjectDoc, snap => {
+      setSubject({ key: snap.id, ...snap.data() })
+    })
+  }, [])
 
   return (
     <ScrollView style={styles.container}>
@@ -84,6 +87,7 @@ function SubjectInfoTab({ navigation, route }) {
         icon={
           <MaterialIcons name="today" size={40} color={MD3Colors.primary50} />
         }
+        onPress={() => navigation.navigate('Timetable')}
       >
         {subject.timetable ? (
           subject.timetable.map((item, index) => (
@@ -122,7 +126,6 @@ function SubjectInfoHomework({ navigation, route }) {
     const filteredData = sortedData.filter(
       item => item.subjectId == subject.key
     )
-    console.log(filteredData)
     setAssignments(filteredData)
   }
 
@@ -136,10 +139,6 @@ function SubjectInfoHomework({ navigation, route }) {
   const [assignmentId, setAssignmentId] = useState(null)
   const [assignmentPoint, setAssignmentPoint] = useState(null)
   const [userId, setUserId] = useState(null)
-
-  useEffect(() => {
-    console.log('assignments: ', JSON.stringify(assignments))
-  }, [assignments])
 
   return (
     <>

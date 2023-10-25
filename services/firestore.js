@@ -64,6 +64,10 @@ export const getSubjectsCollectionData = userId => {
   return data
 }
 
+export const getSubjectDocument = docId => {
+  return doc(FIRESTORE_DB, 'subject', docId)
+}
+
 export const addSubjectDocument = data => {
   addDoc(collection(FIRESTORE_DB, 'subject'), data)
 }

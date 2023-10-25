@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons'
 
 import SubjectHome from './subject/SubjectHome'
 import SubjectInfo from './subject/SubjectInfo'
-import { DeleteSubjectMobal } from 'components/modal'
+import { DeleteSubjectMobal, EditSubjectModel } from 'components/modal'
 import { useState } from 'react'
 
 const Stack = createNativeStackNavigator()
@@ -62,6 +62,8 @@ function SubjectInfoHeader({ navigation, route }) {
   const { subject } = route.params
 
   const [showDeleteSubjectModal, setShowDeleteSubjectModal] = useState(false)
+  const [showEditSubjectModal, setShowEditSubjectModal] = useState(false)
+  const [selectedSubject, setSelectedSubject] = useState({})
 
   const deleteSubject = () => {
     navigation.navigate('SubjectHome')
@@ -84,17 +86,15 @@ function SubjectInfoHeader({ navigation, route }) {
         <Appbar.Action
           icon="pencil"
           color={MD3Colors.primary90}
-          onPress={() => console.log('Edit')}
+          onPress={() => {
+            setSelectedSubject(subject)
+            setShowEditSubjectModal(true)
+          }}
         />
         <Appbar.Action
           icon="delete"
           color={MD3Colors.primary90}
           onPress={() => setShowDeleteSubjectModal(true)}
-        />
-        <Appbar.Action
-          icon="dots-vertical"
-          color={MD3Colors.primary90}
-          onPress={() => console.log('More')}
         />
       </Appbar.Header>
       <DeleteSubjectMobal
@@ -102,6 +102,12 @@ function SubjectInfoHeader({ navigation, route }) {
         onCancel={() => setShowDeleteSubjectModal(false)}
         onOK={deleteSubject}
         subjectId={subject.key}
+      />
+      <EditSubjectModel
+        visible={showEditSubjectModal}
+        onCancel={() => setShowEditSubjectModal(false)}
+        onOK={() => setShowEditSubjectModal(false)}
+        data={selectedSubject}
       />
     </>
   )
