@@ -595,163 +595,175 @@ export function AssigmentDetailModal({ visible, onDismiss, data }) {
     setDate(currentDate)
   }
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+
   return (
     <Portal>
-      {editing ? (
-        <Modal
-          visible={visible}
-          onDismiss={exitModal}
-          contentContainerStyle={{ shadowColor: '#0000' }}
-        >
-          <View
-            style={{
-              ...styles.modalContainer,
-              ...styles.top,
-              backgroundColor: MD3Colors.primary50,
-            }}
+      <>
+        {editing ? (
+          <Modal
+            visible={visible}
+            onDismiss={exitModal}
+            contentContainerStyle={{ shadowColor: '#0000' }}
           >
-            <TextInput
-              mode="flat"
-              style={{ ...styles.textInput, height: null }}
-              label="Title"
-              value={title}
-              onChangeText={setTitle}
-            />
-            <View style={{ flexDirection: 'row', marginTop: 8 }}>
-              <Button
+            <View
+              style={{
+                ...styles.modalContainer,
+                ...styles.top,
+                backgroundColor: MD3Colors.primary50,
+              }}
+            >
+              <TextInput
+                mode="flat"
+                style={{ ...styles.textInput, height: null }}
+                label="Title"
+                value={title}
+                onChangeText={setTitle}
+              />
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <Button
+                  style={{
+                    marginVertical: 4,
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    width: '65%',
+                  }}
+                  icon="calendar"
+                  mode="contained"
+                  onPress={() => {
+                    setMode('date')
+                    setShow(true)
+                  }}
+                >
+                  {dayjs(date).format('ddd, DD MMM, YYYY')}
+                </Button>
+                <Button
+                  style={{
+                    marginVertical: 4,
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    width: '35%',
+                  }}
+                  icon="clock"
+                  mode="contained"
+                  onPress={() => {
+                    setMode('time')
+                    setShow(true)
+                  }}
+                >
+                  {dayjs(date).format('HH:mm')}
+                </Button>
+              </View>
+            </View>
+            <View style={{ ...styles.modalContainer, ...styles.bottom }}>
+              <TextInput
+                mode="outlined"
                 style={{
-                  marginVertical: 4,
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                  width: '65%',
+                  ...styles.textInput,
+                  height: null,
+                  backgroundColor: 'white',
                 }}
-                icon="calendar"
+                label="Description"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={5}
+              />
+              <Button
+                icon="content-save"
                 mode="contained"
-                onPress={() => {
-                  setMode('date')
-                  setShow(true)
-                }}
+                onPress={saveChanges}
+                style={{ marginTop: 16 }}
               >
-                {dayjs(date).format('ddd, DD MMM, YYYY')}
+                Save
               </Button>
               <Button
-                style={{
-                  marginVertical: 4,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  width: '35%',
-                }}
-                icon="clock"
-                mode="contained"
-                onPress={() => {
-                  setMode('time')
-                  setShow(true)
-                }}
+                icon="cancel"
+                mode="outlined"
+                textColor="red"
+                onPress={cancelEdit}
+                style={{ marginTop: 8 }}
               >
-                {dayjs(date).format('HH:mm')}
+                Cancel
               </Button>
             </View>
-          </View>
-          <View style={{ ...styles.modalContainer, ...styles.bottom }}>
-            <TextInput
-              mode="outlined"
-              style={{
-                ...styles.textInput,
-                height: null,
-                backgroundColor: 'white',
-              }}
-              label="Description"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={5}
-            />
-            <Button
-              icon="content-save"
-              mode="contained"
-              onPress={saveChanges}
-              style={{ marginTop: 16 }}
-            >
-              Save
-            </Button>
-            <Button
-              icon="cancel"
-              mode="outlined"
-              textColor="red"
-              onPress={cancelEdit}
-              style={{ marginTop: 8 }}
-            >
-              Cancel
-            </Button>
-          </View>
-          {show ? (
-            <DateTimePicker
-              value={date}
-              mode={mode}
-              is24Hour={true}
-              onChange={onDateChange}
-            />
-          ) : null}
-        </Modal>
-      ) : (
-        <Modal
-          visible={visible}
-          onDismiss={exitModal}
-          contentContainerStyle={{ shadowColor: '#0000' }}
-        >
-          <View
-            style={{
-              ...styles.modalContainer,
-              ...styles.top,
-              backgroundColor: MD3Colors.primary50,
-            }}
-          >
-            <Text variant="titleLarge" style={{ color: 'white' }}>
-              {mainData ? mainData.title : ''}
-            </Text>
-            {mainData.dueDate ? (
-              <Text
-                variant="titleMedium"
-                style={{ color: 'white', marginBottom: 8 }}
-              >
-                {dayjs
-                  .unix(mainData.dueDate.seconds)
-                  .format('MMMM DD, YYYY - HH:mm')}
-              </Text>
+            {show ? (
+              <DateTimePicker
+                value={date}
+                mode={mode}
+                is24Hour={true}
+                onChange={onDateChange}
+              />
             ) : null}
-            <Text variant="titleSmall" style={{ color: 'white' }}>
-              <MaterialCommunityIcons name="bookmark" /> {mainData ? mainData.subject : ''}
-            </Text>
-          </View>
-          <View style={{ ...styles.modalContainer, ...styles.bottom }}>
-            <Text variant="labelSmall">Description</Text>
-            <Text variant="bodyMedium">{mainData.description}</Text>
-            <View style={{ marginVertical: 8 }} />
-            {mainData.finished ? (
-              <Chip icon="check">Finished</Chip>
-            ) : (
-              <Chip icon="cancel">Unfinished</Chip>
-            )}
-            <Button
-              icon="pencil"
-              mode="contained"
-              onPress={startEdit}
-              style={{ marginTop: 16 }}
+          </Modal>
+        ) : (
+          <Modal
+            visible={visible}
+            onDismiss={exitModal}
+            contentContainerStyle={{ shadowColor: '#0000' }}
+          >
+            <View
+              style={{
+                ...styles.modalContainer,
+                ...styles.top,
+                backgroundColor: MD3Colors.primary50,
+              }}
             >
-              Edit
-            </Button>
-            <Button
-              icon="delete"
-              mode="outlined"
-              textColor="red"
-              onPress={deleteAssignment}
-              style={{ marginTop: 8 }}
-            >
-              Delete
-            </Button>
-          </View>
-        </Modal>
-      )}
+              <Text variant="titleLarge" style={{ color: 'white' }}>
+                {mainData ? mainData.title : ''}
+              </Text>
+              {mainData.dueDate ? (
+                <Text
+                  variant="titleMedium"
+                  style={{ color: 'white', marginBottom: 8 }}
+                >
+                  {dayjs
+                    .unix(mainData.dueDate.seconds)
+                    .format('MMMM DD, YYYY - HH:mm')}
+                </Text>
+              ) : null}
+              {mainData.subject ? <Text variant="titleSmall" style={{ color: 'white' }}>
+                <MaterialCommunityIcons name="bookmark" /> {mainData ? mainData.subject : ''}
+              </Text> : null}
+            </View>
+            <View style={{ ...styles.modalContainer, ...styles.bottom }}>
+              <Text variant="labelSmall">Description</Text>
+              <Text variant="bodyMedium">{mainData.description}</Text>
+              <View style={{ marginVertical: 8 }} />
+              {mainData.finished ? (
+                <Chip icon="check">Finished</Chip>
+              ) : (
+                <Chip icon="cancel" onPress={() => setShowConfirmModal(true)}>Unfinished</Chip>
+              )}
+              <Button
+                icon="pencil"
+                mode="contained"
+                onPress={startEdit}
+                style={{ marginTop: 16 }}
+              >
+                Edit
+              </Button>
+              <Button
+                icon="delete"
+                mode="outlined"
+                textColor="red"
+                onPress={deleteAssignment}
+                style={{ marginTop: 8 }}
+              >
+                Delete
+              </Button>
+            </View>
+          </Modal>
+        )}
+      </>
+      <ConfirmFinishAssignmentModal
+        visible={showConfirmModal}
+        onCancel={() => setShowConfirmModal(false)}
+        onOK={() => setShowConfirmModal(false)}
+        assignmentId={mainData.key}
+        point={mainData.point}
+        userId={mainData.ownerUID}
+      />
     </Portal>
   )
 }
