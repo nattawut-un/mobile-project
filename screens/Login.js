@@ -6,6 +6,7 @@ import { FIREBASE_AUTH } from "config/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 import Icon from '../assets/icon.png'
+import { addUser } from "services/firestore";
 
 export default function Login() {
   const [register, setRegister] = useState(false)
@@ -33,6 +34,7 @@ export default function Login() {
     setLoading(true)
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password)
+      addUser(res.user.uid, res.user.email.split('@')[0] ?? 'user' + new Date().getTime())
       console.log(res)
     } catch (err) {
       console.log(err)
