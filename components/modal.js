@@ -649,7 +649,7 @@ export function DeleteTimetableModel({ visible, onCancel, onOK, data }) {
   )
 }
 
-export function AssigmentDetailModal({ visible, onDismiss, data }) {
+export function AssignmentDetailModal({ visible, onDismiss, data }) {
   if (!data) return <View />
 
   const [mainData, setMainData] = useState({})

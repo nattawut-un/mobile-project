@@ -13,7 +13,7 @@ import { addAssignmentDocument, addSubjectDocument, checkAdmin, getAssignmentsCo
 import ListCard from 'components/ListCard';
 import TestImage from 'assets/icon.png'
 import Settings from './Settings';
-import { AddAssignmentModal, AddSubjectModal, AddTimetableModal, AssigmentDetailModal } from 'components/modal';
+import { AddAssignmentModal, AddSubjectModal, AddTimetableModal, AssignmentDetailModal } from 'components/modal';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator()
@@ -135,7 +135,7 @@ function Homepage({ navigation }) {
         onOK={addAssignment}
         list={subjects}
       />
-      <AssigmentDetailModal
+      <AssignmentDetailModal
         data={{
           ...assignmentData,
           subject: getSubjectName(subjects, assignmentData.subjectId)

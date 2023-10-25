@@ -1,13 +1,14 @@
-import { View, StyleSheet, ScrollView, FlatList } from 'react-native'
-import { MD3Colors, Text } from 'react-native-paper'
-import React from 'react'
-import ListCard from 'components/ListCard'
-import TestImage from '../../assets/JastKherZ.png'
-import dayjs from 'dayjs'
-import { Timestamp } from 'firebase/firestore'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { AssigmentDetailModal } from 'components/modal'
-import { useState } from 'react'
+import ListCard from 'components/ListCard'
+import { AssignmentDetailModal } from 'components/modal'
+import dayjs from 'dayjs'
+import { onSnapshot } from 'firebase/firestore'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+import { FlatList, StyleSheet, View } from 'react-native'
+import { MD3Colors, Text } from 'react-native-paper'
+import { useSelector } from 'react-redux'
+import { getAssignmentsCollection } from 'services/firestore'
 
 // Date example
 // {"dateString": "2023-10-22", "day": 22, "month": 10, "timestamp": 1697932800000, "year": 2023}
@@ -15,6 +16,22 @@ import { useState } from 'react'
 const CalendarDetails = ({ navigation, route }) => {
   const date = dayjs(route.params.date)
   const { assignments } = route.params
+
+  const user = useSelector(state => state.user.user)
+  const assignmentsCollection = getAssignmentsCollection(user ? user.uid : '')
+  const [assignmentList, setAssignmentList] = useState([])
+  useEffect(() => {
+    const unsub = onSnapshot(assignmentsCollection, { next: snap => {
+      const data = []
+      snap.forEach(doc => {
+        const fields = doc.data()
+        data.push({ key: doc.id, ...fields })
+      })
+      const sortedData = _.sortBy(data, item => item.dueDate.seconds)
+      setAssignmentList(sortedData)
+    } })
+    return () => unsub()
+  }, [])
 
   const [selectedAssignment, setSelectedAssignment] = useState(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
@@ -30,9 +47,9 @@ const CalendarDetails = ({ navigation, route }) => {
           </Text>
         </View>
         <View>
-          {assignments ? (
+          {assignmentList ? (
             <FlatList
-              data={assignments}
+              data={assignmentList}
               renderItem={({ item }) => (
                 <ListCard
                   key={item.key}
@@ -62,7 +79,7 @@ const CalendarDetails = ({ navigation, route }) => {
           )}
         </View>
       </View>
-      <AssigmentDetailModal
+      <AssignmentDetailModal
         visible={showDetailModal}
         onDismiss={() => setShowDetailModal(false)}
         data={selectedAssignment}

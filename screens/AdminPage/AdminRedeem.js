@@ -2,7 +2,7 @@ import { StyleSheet, View, Image, Alert } from 'react-native'
 import { Text, Button, Divider } from 'react-native-paper'
 import { getRedeemDocument, markAsRedeem } from 'services/firestore'
 import { useEffect } from 'react'
-import { onSnapshot } from 'firebase/firestore'
+import { getDoc, onSnapshot } from 'firebase/firestore'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -11,21 +11,24 @@ const AdminRedeem = ({ navigation, route }) => {
   const user = useSelector(state => state.user.user)
 
   const [itemInfo, setItemInfo] = useState({})
-  const redeemDocument = getRedeemDocument(data.key)
-  useEffect(() => {
-    const unsub = onSnapshot(redeemDocument, { next: snap => {
-      const data = snap.data()
+  const fetchData = ref => {
+    getDoc(ref).then(doc => {
+      const data = doc.data()
       if (data.finished) {
         Alert.alert('Error', 'The redeem has already been claimed.')
-        navigation.navigate('AdminScanQR')
+        return navigation.navigate('AdminScanQR')
       }
       if (data.ownerId != user.uid) {
         Alert.alert('Error', 'The redeem code is invalid.')
-        navigation.navigate('AdminScanQR')
+        return navigation.navigate('AdminScanQR')
       }
       setItemInfo(data)
-    } })
-    return () => unsub()
+    })
+  }
+
+  const redeemDocument = getRedeemDocument(data.key)
+  useEffect(() => {
+    fetchData(redeemDocument)
   }, [])
 
   const confirm = () => {
