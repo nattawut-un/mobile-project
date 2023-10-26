@@ -67,7 +67,7 @@ export default function Login() {
     <View style={styles.container}>
       <Image source={Icon} style={styles.icon} />
       <Text variant="displayMedium" style={{ fontWeight: 'bold' }}>
-        Hello.
+        School Planner
       </Text>
       <TextInput
         mode="outlined"
@@ -111,7 +111,7 @@ export default function Login() {
     <View style={styles.container}>
       <Image source={Icon} style={styles.icon} />
       <Text variant="displayMedium" style={{ fontWeight: 'bold' }}>
-        Hello.
+        School Planner
       </Text>
       <TextInput
         mode="outlined"
